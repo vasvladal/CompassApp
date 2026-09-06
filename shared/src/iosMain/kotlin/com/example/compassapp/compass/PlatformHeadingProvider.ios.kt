@@ -7,7 +7,7 @@ import platform.Foundation.NSError
 import platform.darwin.NSObject
 
 actual class PlatformHeadingProvider actual constructor(
-    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?) -> Unit
 ) {
     private val locationManager = CLLocationManager()
     private var delegate: HeadingDelegate? = null
@@ -41,7 +41,7 @@ actual class PlatformHeadingProvider actual constructor(
 }
 
 private class HeadingDelegate(
-    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?) -> Unit
 ) : NSObject(), CLLocationManagerDelegateProtocol {
 
     override fun locationManager(manager: CLLocationManager, didUpdateHeading: CLHeading) {
@@ -49,7 +49,7 @@ private class HeadingDelegate(
         val magneticHeading = didUpdateHeading.magneticHeading
         val heading = if (trueHeading >= 0) trueHeading else magneticHeading
         if (heading >= 0) {
-            onHeadingUpdate(heading.toFloat(), didUpdateHeading.headingAccuracy.toFloat())
+            onHeadingUpdate(heading.toFloat(), didUpdateHeading.headingAccuracy.toFloat(), null)
         }
     }
 

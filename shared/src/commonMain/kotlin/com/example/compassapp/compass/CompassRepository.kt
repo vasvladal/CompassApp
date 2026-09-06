@@ -89,8 +89,8 @@ class CompassRepository {
 
     fun startHeadingUpdates() {
         if (headingProvider != null) return
-        val provider = PlatformHeadingProvider { degrees, accuracy ->
-            _heading.value = HeadingData.fromDegrees(degrees, accuracy)
+        val provider = PlatformHeadingProvider { degrees, accuracy, strength ->
+            _heading.value = HeadingData.fromDegrees(degrees, accuracy, strength)
             _headingError.value = null
         }
         headingProvider = provider

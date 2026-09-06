@@ -10,7 +10,7 @@ import android.view.WindowManager
 import kotlin.math.PI
 
 actual class PlatformHeadingProvider actual constructor(
-    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?) -> Unit
 ) {
     private val sensorManager: SensorManager by lazy {
         AndroidContextHolder.appContext.getSystemService(SensorManager::class.java)
@@ -33,6 +33,7 @@ actual class PlatformHeadingProvider actual constructor(
     private var isRunning = false
     private var usingRotationVector = false
     private var smoothedDegrees: Float? = null
+    private var magneticStrengthMicroTesla: Float? = null
 
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -48,6 +49,11 @@ actual class PlatformHeadingProvider actual constructor(
                     publishFromAccelMag()
                 }
                 Sensor.TYPE_MAGNETIC_FIELD -> {
+                    magneticStrengthMicroTesla = kotlin.math.sqrt(
+                        event.values.getOrElse(0) { 0f } * event.values.getOrElse(0) { 0f } +
+                        event.values.getOrElse(1) { 0f } * event.values.getOrElse(1) { 0f } +
+                        event.values.getOrElse(2) { 0f } * event.values.getOrElse(2) { 0f }
+                    )
                     if (usingRotationVector) return
                     System.arraycopy(event.values, 0, geomagnetic, 0, geomagnetic.size)
                     hasGeomagnetic = true
@@ -88,7 +94,7 @@ actual class PlatformHeadingProvider actual constructor(
         SensorManager.getOrientation(remappedMatrix, orientation)
 
         val rawDegrees = (orientation[0] * 180f / PI.toFloat() + 360f) % 360f
-        onHeadingUpdate(lowPass(rawDegrees), accuracyDegrees)
+        onHeadingUpdate(lowPass(rawDegrees), accuracyDegrees, magneticStrengthMicroTesla)
     }
 
     /**
@@ -123,6 +129,9 @@ actual class PlatformHeadingProvider actual constructor(
             usingRotationVector = true
             isRunning = true
             sensorManager.registerListener(listener, rotationVector, SensorManager.SENSOR_DELAY_UI)
+            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let {
+                sensorManager.registerListener(listener, it, SensorManager.SENSOR_DELAY_UI)
+            }
             return
         }
 
@@ -147,6 +156,7 @@ actual class PlatformHeadingProvider actual constructor(
         hasGravity = false
         hasGeomagnetic = false
         smoothedDegrees = null
+        magneticStrengthMicroTesla = null
         isRunning = false
     }
 }
