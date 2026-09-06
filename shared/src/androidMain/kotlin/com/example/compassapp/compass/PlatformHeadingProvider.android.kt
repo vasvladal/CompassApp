@@ -8,27 +8,24 @@ import android.hardware.SensorManager
 import android.view.Surface
 import android.view.WindowManager
 import kotlin.math.PI
+import kotlin.math.sqrt
 
 actual class PlatformHeadingProvider actual constructor(
-    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?) -> Unit
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?, pitch: Float, roll: Float) -> Unit
 ) {
     private val sensorManager: SensorManager by lazy {
         AndroidContextHolder.appContext.getSystemService(SensorManager::class.java)
     }
-
     private val windowManager: WindowManager by lazy {
         AndroidContextHolder.appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
-
     private val gravity = FloatArray(3)
     private val geomagnetic = FloatArray(3)
     private var hasGravity = false
     private var hasGeomagnetic = false
-
     private val rotationMatrix = FloatArray(9)
     private val remappedMatrix = FloatArray(9)
     private val orientation = FloatArray(3)
-
     private var isRunning = false
     private var usingRotationVector = false
     private var smoothedDegrees: Float? = null
@@ -48,7 +45,7 @@ actual class PlatformHeadingProvider actual constructor(
                     publishFromAccelMag()
                 }
                 Sensor.TYPE_MAGNETIC_FIELD -> {
-                    magneticStrengthMicroTesla = kotlin.math.sqrt(
+                    magneticStrengthMicroTesla = sqrt(
                         event.values.getOrElse(0) { 0f } * event.values.getOrElse(0) { 0f } +
                                 event.values.getOrElse(1) { 0f } * event.values.getOrElse(1) { 0f } +
                                 event.values.getOrElse(2) { 0f } * event.values.getOrElse(2) { 0f }
@@ -60,7 +57,6 @@ actual class PlatformHeadingProvider actual constructor(
                 }
             }
         }
-
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
 
@@ -72,11 +68,7 @@ actual class PlatformHeadingProvider actual constructor(
     }
 
     private fun publishAzimuth(matrix: FloatArray, accuracyDegrees: Float?) {
-        // Get the current display rotation
         val rotation = currentRotation()
-
-        // Remap the coordinate system based on the device's current orientation
-        // This ensures the compass works correctly in both portrait and landscape
         val (axisX, axisY) = when (rotation) {
             Surface.ROTATION_0 -> SensorManager.AXIS_X to SensorManager.AXIS_Y
             Surface.ROTATION_90 -> SensorManager.AXIS_Y to SensorManager.AXIS_MINUS_X
@@ -84,30 +76,25 @@ actual class PlatformHeadingProvider actual constructor(
             Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Y to SensorManager.AXIS_X
             else -> SensorManager.AXIS_X to SensorManager.AXIS_Y
         }
-
         SensorManager.remapCoordinateSystem(matrix, axisX, axisY, remappedMatrix)
         SensorManager.getOrientation(remappedMatrix, orientation)
 
-        // Get the azimuth (heading) from the orientation array
-        // orientation[0] = azimuth (rotation around Z-axis)
         var rawDegrees = (orientation[0] * 180f / PI.toFloat() + 360f) % 360f
-
-        // Apply low-pass filter to smooth the reading
         val filteredDegrees = lowPass(rawDegrees)
 
-        onHeadingUpdate(filteredDegrees, accuracyDegrees, magneticStrengthMicroTesla)
+        // Pitch (rotation around X) and Roll (rotation around Y)
+        val pitch = orientation[1] * 180f / PI.toFloat()
+        val roll = orientation[2] * 180f / PI.toFloat()
+
+        onHeadingUpdate(filteredDegrees, accuracyDegrees, magneticStrengthMicroTesla, pitch, roll)
     }
 
-    /**
-     * Circular low-pass filter so small sensor jitter doesn't make the needle twitch
-     */
     private fun lowPass(newDegrees: Float, factor: Float = 0.15f): Float {
         val previous = smoothedDegrees ?: run {
             smoothedDegrees = newDegrees
             return newDegrees
         }
         var delta = newDegrees - previous
-        // Handle wrap-around
         if (delta > 180f) delta -= 360f
         if (delta < -180f) delta += 360f
         val result = (previous + factor * delta + 360f) % 360f
@@ -124,7 +111,6 @@ actual class PlatformHeadingProvider actual constructor(
     actual fun start(onError: (String) -> Unit) {
         if (isRunning) return
         smoothedDegrees = null
-
         val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
         if (rotationVector != null) {
             usingRotationVector = true
@@ -135,16 +121,12 @@ actual class PlatformHeadingProvider actual constructor(
             }
             return
         }
-
-        // Fallback for devices without rotation vector sensor
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-
         if (accelerometer == null || magnetometer == null) {
             onError("Compass sensors are not available on this device")
             return
         }
-
         usingRotationVector = false
         isRunning = true
         sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
