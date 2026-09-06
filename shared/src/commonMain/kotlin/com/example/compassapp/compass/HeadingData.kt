@@ -1,6 +1,5 @@
 package com.example.compassapp.compass
 
-import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.round
 
@@ -16,12 +15,7 @@ data class HeadingData(
         fun fromDegrees(degrees: Float, accuracyDegrees: Float? = null, magneticStrengthMicroTesla: Float? = null): HeadingData {
             val normalized = ((degrees % 360) + 360) % 360
             val index = ((normalized + 22.5f) / 45f).toInt() % 8
-            return HeadingData(
-                degrees = normalized,
-                cardinalDirection = directions[index],
-                accuracyDegrees = accuracyDegrees,
-                magneticStrengthMicroTesla = magneticStrengthMicroTesla
-            )
+            return HeadingData(normalized, directions[index], accuracyDegrees, magneticStrengthMicroTesla)
         }
     }
 }

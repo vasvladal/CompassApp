@@ -13,12 +13,8 @@ import kotlin.math.sqrt
 actual class PlatformHeadingProvider actual constructor(
     private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?, pitch: Float, roll: Float) -> Unit
 ) {
-    private val sensorManager: SensorManager by lazy {
-        AndroidContextHolder.appContext.getSystemService(SensorManager::class.java)
-    }
-    private val windowManager: WindowManager by lazy {
-        AndroidContextHolder.appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    }
+    private val sensorManager: SensorManager by lazy { AndroidContextHolder.appContext.getSystemService(SensorManager::class.java) }
+    private val windowManager: WindowManager by lazy { AndroidContextHolder.appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val gravity = FloatArray(3)
     private val geomagnetic = FloatArray(3)
     private var hasGravity = false
@@ -45,11 +41,7 @@ actual class PlatformHeadingProvider actual constructor(
                     publishFromAccelMag()
                 }
                 Sensor.TYPE_MAGNETIC_FIELD -> {
-                    magneticStrengthMicroTesla = sqrt(
-                        event.values.getOrElse(0) { 0f } * event.values.getOrElse(0) { 0f } +
-                                event.values.getOrElse(1) { 0f } * event.values.getOrElse(1) { 0f } +
-                                event.values.getOrElse(2) { 0f } * event.values.getOrElse(2) { 0f }
-                    )
+                    magneticStrengthMicroTesla = sqrt(event.values.getOrElse(0){0f} * event.values.getOrElse(0){0f} + event.values.getOrElse(1){0f} * event.values.getOrElse(1){0f} + event.values.getOrElse(2){0f} * event.values.getOrElse(2){0f})
                     if (usingRotationVector) return
                     System.arraycopy(event.values, 0, geomagnetic, 0, geomagnetic.size)
                     hasGeomagnetic = true
@@ -63,7 +55,7 @@ actual class PlatformHeadingProvider actual constructor(
     private fun publishFromAccelMag() {
         if (!hasGravity || !hasGeomagnetic) return
         if (SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)) {
-            publishAzimuth(rotationMatrix, accuracyDegrees = null)
+            publishAzimuth(rotationMatrix, null)
         }
     }
 
@@ -78,22 +70,15 @@ actual class PlatformHeadingProvider actual constructor(
         }
         SensorManager.remapCoordinateSystem(matrix, axisX, axisY, remappedMatrix)
         SensorManager.getOrientation(remappedMatrix, orientation)
-
         var rawDegrees = (orientation[0] * 180f / PI.toFloat() + 360f) % 360f
         val filteredDegrees = lowPass(rawDegrees)
-
-        // Pitch (rotation around X) and Roll (rotation around Y)
         val pitch = orientation[1] * 180f / PI.toFloat()
         val roll = orientation[2] * 180f / PI.toFloat()
-
         onHeadingUpdate(filteredDegrees, accuracyDegrees, magneticStrengthMicroTesla, pitch, roll)
     }
 
     private fun lowPass(newDegrees: Float, factor: Float = 0.15f): Float {
-        val previous = smoothedDegrees ?: run {
-            smoothedDegrees = newDegrees
-            return newDegrees
-        }
+        val previous = smoothedDegrees ?: run { smoothedDegrees = newDegrees; return newDegrees }
         var delta = newDegrees - previous
         if (delta > 180f) delta -= 360f
         if (delta < -180f) delta += 360f
@@ -102,9 +87,7 @@ actual class PlatformHeadingProvider actual constructor(
         return result
     }
 
-    private fun accuracyDegrees(values: FloatArray): Float? =
-        if (values.size >= 5) values[4] * 180f / PI.toFloat() else null
-
+    private fun accuracyDegrees(values: FloatArray): Float? = if (values.size >= 5) values[4] * 180f / PI.toFloat() else null
     @Suppress("DEPRECATION")
     private fun currentRotation(): Int = windowManager.defaultDisplay.rotation
 
@@ -116,17 +99,12 @@ actual class PlatformHeadingProvider actual constructor(
             usingRotationVector = true
             isRunning = true
             sensorManager.registerListener(listener, rotationVector, SensorManager.SENSOR_DELAY_UI)
-            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let {
-                sensorManager.registerListener(listener, it, SensorManager.SENSOR_DELAY_UI)
-            }
+            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let { sensorManager.registerListener(listener, it, SensorManager.SENSOR_DELAY_UI) }
             return
         }
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-        if (accelerometer == null || magnetometer == null) {
-            onError("Compass sensors are not available on this device")
-            return
-        }
+        if (accelerometer == null || magnetometer == null) { onError("Compass sensors are not available on this device"); return }
         usingRotationVector = false
         isRunning = true
         sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
@@ -136,10 +114,6 @@ actual class PlatformHeadingProvider actual constructor(
     actual fun stop() {
         if (!isRunning) return
         sensorManager.unregisterListener(listener)
-        hasGravity = false
-        hasGeomagnetic = false
-        smoothedDegrees = null
-        magneticStrengthMicroTesla = null
-        isRunning = false
+        hasGravity = false; hasGeomagnetic = false; smoothedDegrees = null; magneticStrengthMicroTesla = null; isRunning = false
     }
 }

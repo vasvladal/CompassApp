@@ -1,11 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--
-      No ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION declaration needed here:
-      the dev.jordond.compass:geolocation-mobile artifact merges those permissions
-      into the final manifest automatically (see compass.jordond.dev/docs/setup/android-ios).
-    -->
+    <!-- THIS LINE IS CRITICAL FOR THE MAP TO LOAD -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
         <provider
@@ -18,5 +15,4 @@
                 android:value="androidx.startup" />
         </provider>
     </application>
-
 </manifest>

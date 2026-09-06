@@ -6,9 +6,7 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        compilations.all { }
-    }
+    androidTarget { compilations.all { } }
     val iosArm64 = iosArm64()
     val iosSimulatorArm64 = iosSimulatorArm64()
     listOf(iosArm64, iosSimulatorArm64).forEach { iosTarget ->
@@ -22,11 +20,8 @@ kotlin {
             dependencies {
                 implementation(libs.compass.geolocation)
                 implementation(libs.compass.geolocation.mobile)
-
-                // ⚠️ ADD THESE TWO LINES ⚠️
                 implementation(libs.compass.geocoder)
                 implementation(libs.compass.geocoder.mobile)
-
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(compose.runtime)
@@ -39,27 +34,22 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.startup.runtime)
+                // ADD THESE TWO LINES:
+                implementation(libs.maps.compose)
+                implementation(libs.play.services.maps)
             }
         }
-        val iosMain by creating {
-            dependsOn(commonMain)
-        }
+        val iosMain by creating { dependsOn(commonMain) }
         val iosArm64Main by getting { dependsOn(iosMain) }
         val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
+        val commonTest by getting { dependencies { implementation(kotlin("test")) } }
     }
 }
 
 android {
     namespace = "com.example.compassapp.shared"
     compileSdk = 37
-    defaultConfig {
-        minSdk = 24
-    }
+    defaultConfig { minSdk = 24 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21

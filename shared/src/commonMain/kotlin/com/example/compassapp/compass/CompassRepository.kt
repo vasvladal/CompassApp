@@ -46,16 +46,8 @@ class CompassRepository {
     fun startLocationTracking() {
         if (trackingJob?.isActive == true) return
         trackingControlJob = geolocator.track().launchIn(scope)
-        trackingJob = geolocator.locationUpdates
-            .catch { throwable ->
-                _locationError.value = throwable.message ?: "Couldn't get your location."
-            }
-            .onEach { location ->
-                _location.value = location
-                _locationError.value = null
-                reverseGeocode(location)
-            }
-            .launchIn(scope)
+        trackingJob = geolocator.locationUpdates.catch { throwable -> _locationError.value = throwable.message ?: "Couldn't get your location." }
+            .onEach { location -> _location.value = location; _locationError.value = null; reverseGeocode(location) }.launchIn(scope)
     }
 
     private fun reverseGeocode(location: Location) {
@@ -63,36 +55,21 @@ class CompassRepository {
             try {
                 val place = geocoder.placeOrNull(location.coordinates)
                 _placeName.value = place?.locality ?: "Unknown Location"
-            } catch (e: Exception) {
-                _placeName.value = null
-            }
+            } catch (e: Exception) { _placeName.value = null }
         }
     }
 
     fun stopLocationTracking() {
-        geolocator.stopTracking()
-        trackingControlJob?.cancel()
-        trackingControlJob = null
-        trackingJob?.cancel()
-        trackingJob = null
-        _location.value = null
-        _locationError.value = null
-        _placeName.value = null
+        geolocator.stopTracking(); trackingControlJob?.cancel(); trackingControlJob = null; trackingJob?.cancel(); trackingJob = null
+        _location.value = null; _locationError.value = null; _placeName.value = null
     }
 
     fun refreshLocation() {
         scope.launch {
             try {
-                geolocator.current().onSuccess { location ->
-                    _location.value = location
-                    _locationError.value = null
-                    reverseGeocode(location)
-                }.onFailed { error ->
-                    _locationError.value = error.message
-                }
-            } catch (e: Exception) {
-                _locationError.value = e.message ?: "Couldn't get your location."
-            }
+                geolocator.current().onSuccess { location -> _location.value = location; _locationError.value = null; reverseGeocode(location) }
+                    .onFailed { error -> _locationError.value = error.message }
+            } catch (e: Exception) { _locationError.value = e.message ?: "Couldn't get your location." }
         }
     }
 
@@ -105,26 +82,13 @@ class CompassRepository {
             _roll.value = roll
         }
         headingProvider = provider
-        provider.start { error ->
-            _headingError.value = error
-            headingProvider = null
-        }
+        provider.start { error -> _headingError.value = error; headingProvider = null }
     }
 
     fun stopHeadingUpdates() {
-        headingProvider?.stop()
-        headingProvider = null
-        _heading.value = null
-        _headingError.value = null
+        headingProvider?.stop(); headingProvider = null; _heading.value = null; _headingError.value = null
     }
 
-    fun startAll() {
-        startLocationTracking()
-        startHeadingUpdates()
-    }
-
-    fun stopAll() {
-        stopLocationTracking()
-        stopHeadingUpdates()
-    }
+    fun startAll() { startLocationTracking(); startHeadingUpdates() }
+    fun stopAll() { stopLocationTracking(); stopHeadingUpdates() }
 }

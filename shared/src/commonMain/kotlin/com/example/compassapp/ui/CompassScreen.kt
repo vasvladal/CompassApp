@@ -76,15 +76,8 @@ private fun formatDMS(degrees: Int, minutes: Int, seconds: Double): String {
 
 @Composable
 fun CompassApp(repository: CompassRepository = remember { CompassRepository() }) {
-    MaterialTheme(
-        colorScheme = darkColorScheme(
-            primary = Purple, background = Black, surface = Black,
-            onBackground = White, onSurface = White
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize().background(Black)) {
-            CompassScreen(repository)
-        }
+    MaterialTheme(colorScheme = darkColorScheme(primary = Purple, background = Black, surface = Black, onBackground = White, onSurface = White)) {
+        Box(modifier = Modifier.fillMaxSize().background(Black)) { CompassScreen(repository) }
     }
 }
 
@@ -103,10 +96,10 @@ private fun CompassScreen(repository: CompassRepository) {
     var calibrationProgress by remember { mutableStateOf(0f) }
     var lastCalibrationHeading by remember { mutableStateOf<Float?>(null) }
     var totalRotation by remember { mutableStateOf(0f) }
+    var showMap by remember { mutableStateOf(false) }
 
     val rawHeading = heading?.degrees ?: 0f
 
-    // Track rotation during calibration
     LaunchedEffect(showCalibration, rawHeading) {
         if (showCalibration) {
             val last = lastCalibrationHeading
@@ -116,117 +109,44 @@ private fun CompassScreen(repository: CompassRepository) {
                 if (delta < -180f) delta += 360f
                 totalRotation += abs(delta)
                 calibrationProgress = (totalRotation / 720f).coerceIn(0f, 1f)
-                if (calibrationProgress >= 1f) {
-                    showCalibration = false
-                    calibrationProgress = 0f
-                    totalRotation = 0f
-                }
+                if (calibrationProgress >= 1f) { showCalibration = false; calibrationProgress = 0f; totalRotation = 0f }
             }
             lastCalibrationHeading = rawHeading
-        } else {
-            lastCalibrationHeading = null
-            totalRotation = 0f
-            calibrationProgress = 0f
-        }
+        } else { lastCalibrationHeading = null; totalRotation = 0f; calibrationProgress = 0f }
     }
 
-    DisposableEffect(Unit) {
-        repository.startAll()
-        onDispose { repository.stopAll() }
-    }
+    DisposableEffect(Unit) { repository.startAll(); onDispose { repository.stopAll() } }
 
     Box(modifier = Modifier.fillMaxSize().background(Black)) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(Modifier.weight(0.08f))
+        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Spacer(Modifier.weight(0.05f))
 
-            // "TRUE DIRECTION" label
-            Box(
-                modifier = Modifier
-                    .height(32.dp)
-                    .width(168.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(Purple),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "TRUE DIRECTION",
-                    color = PurpleText,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
+            Box(modifier = Modifier.height(32.dp).width(168.dp).clip(RoundedCornerShape(24.dp)).background(Purple), contentAlignment = Alignment.Center) {
+                Text(text = "TRUE DIRECTION", color = PurpleText, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
-
             Spacer(Modifier.height(12.dp))
 
-            // Heading readout
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.padding(bottom = 4.dp)
-            ) {
-                Text(
-                    text = rawHeading.toDouble().roundTo(0).toInt().toString(),
-                    color = White,
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Text(
-                    "°",
-                    modifier = Modifier.padding(bottom = 4.dp, start = 2.dp),
-                    color = White,
-                    fontSize = 24.sp
-                )
+            Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(bottom = 4.dp)) {
+                Text(text = rawHeading.toDouble().roundTo(0).toInt().toString(), color = White, fontSize = 42.sp, fontWeight = FontWeight.Normal)
+                Text("°", modifier = Modifier.padding(bottom = 4.dp, start = 2.dp), color = White, fontSize = 24.sp)
                 Spacer(Modifier.width(8.dp))
-                Text(
-                    HeadingData.fromDegrees(rawHeading).cardinalDirection,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    color = White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Normal
-                )
+                Text(HeadingData.fromDegrees(rawHeading).cardinalDirection, modifier = Modifier.padding(bottom = 4.dp), color = White, fontSize = 28.sp, fontWeight = FontWeight.Normal)
             }
-
             Spacer(Modifier.height(8.dp))
 
-            // Location name with click to show details
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .clickable { showLocationDetails = !showLocationDetails }
-                    .padding(4.dp)
-            ) {
-                Text(
-                    text = placeName ?: "Locating…",
-                    color = White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.clickable { showLocationDetails = !showLocationDetails }.padding(4.dp)) {
+                Text(text = placeName ?: "Locating…", color = White, fontSize = 16.sp, fontWeight = FontWeight.Normal)
                 Spacer(Modifier.width(6.dp))
-                Text(
-                    text = "📍",
-                    fontSize = 14.sp
-                )
+                Text(text = "📍", fontSize = 14.sp)
             }
 
-            // Location details (expanded)
             if (showLocationDetails && location != null) {
-                val lat = location!!.coordinates.latitude
-                val lon = location!!.coordinates.longitude
-                val (latDeg, latMin, latSec) = decimalToDMS(lat)
-                val (lonDeg, lonMin, lonSec) = decimalToDMS(lon)
-                val latDir = if (lat >= 0) "N" else "S"
-                val lonDir = if (lon >= 0) "E" else "W"
-                val altitude = location!!.mslAltitude
-                val accuracy = location!!.accuracy
-                val speed = location!!.speed
+                val lat = location!!.coordinates.latitude; val lon = location!!.coordinates.longitude
+                val (latDeg, latMin, latSec) = decimalToDMS(lat); val (lonDeg, lonMin, lonSec) = decimalToDMS(lon)
+                val latDir = if (lat >= 0) "N" else "S"; val lonDir = if (lon >= 0) "E" else "W"
+                val altitude = location!!.mslAltitude; val accuracy = location!!.accuracy; val speed = location!!.speed
 
-                Column(
-                    modifier = Modifier.padding(vertical = 8.dp).background(DarkGray.copy(alpha = 0.3f)).padding(12.dp).clip(RoundedCornerShape(8.dp)),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(modifier = Modifier.padding(vertical = 8.dp).background(DarkGray.copy(alpha = 0.3f)).padding(12.dp).clip(RoundedCornerShape(8.dp)), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "📍 Location Details", color = Purple, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(4.dp))
                     Text(text = "Latitude: ${formatDMS(latDeg, latMin, latSec)} $latDir", color = White, fontSize = 13.sp)
@@ -238,9 +158,8 @@ private fun CompassScreen(repository: CompassRepository) {
                     if (altitude != null) Text(text = "Altitude: ${(altitude as Double).roundTo(1)} m", color = LightGray, fontSize = 12.sp)
                     if (accuracy != null) Text(text = "Accuracy: ±${(accuracy as Double).roundTo(1)} m", color = LightGray, fontSize = 12.sp)
                     if (speed != null) Text(text = "Speed: ${(speed as Double * 3.6).roundTo(1)} km/h", color = LightGray, fontSize = 12.sp)
-                    Button(onClick = { repository.refreshLocation() }, modifier = Modifier.padding(top = 4.dp)) {
-                        Text("Refresh Location", fontSize = 12.sp)
-                    }
+                    Button(onClick = { repository.refreshLocation() }, modifier = Modifier.padding(top = 4.dp)) { Text("Refresh Location", fontSize = 12.sp) }
+                    Button(onClick = { showMap = true }, modifier = Modifier.padding(top = 4.dp)) { Text("Show Map", fontSize = 12.sp) }
                 }
             }
 
@@ -263,62 +182,49 @@ private fun CompassScreen(repository: CompassRepository) {
 
             Spacer(Modifier.height(6.dp))
             Text(text = "STRENGTH ${heading?.magneticStrengthMicroTesla?.let { "${it.toDouble().roundTo(0).toInt()} μT" } ?: "—"}", color = White, fontSize = 13.sp, modifier = Modifier.padding(bottom = 6.dp))
-
-            // Calibrate Button
-            Button(onClick = { showCalibration = true }, modifier = Modifier.padding(bottom = 8.dp)) {
-                Text("Calibrate Compass", fontSize = 12.sp)
-            }
-
-            Spacer(Modifier.weight(0.08f))
+            Button(onClick = { showCalibration = true }, modifier = Modifier.padding(bottom = 8.dp)) { Text("Calibrate Compass", fontSize = 12.sp) }
+            Spacer(Modifier.weight(0.05f))
         }
 
-        // Calibration Overlay
         if (showCalibration) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.85f))
-                    .clickable { /* prevent clicks behind */ }
-            ) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)).clickable { }) {
+                Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Calibrate Compass", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        "Rotate your device in a figure-8 motion",
-                        color = White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    )
+                    Text("Rotate your device in a figure-8 motion", color = White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
                     Spacer(Modifier.height(24.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(200.dp)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(DarkGray)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(calibrationProgress)
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Purple)
-                        )
+                    Box(modifier = Modifier.width(200.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(DarkGray)) {
+                        Box(modifier = Modifier.fillMaxWidth(calibrationProgress).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Purple))
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        "${(calibrationProgress * 100).toInt()}%",
-                        color = White,
-                        fontSize = 14.sp
-                    )
+                    Text("${(calibrationProgress * 100).toInt()}%", color = White, fontSize = 14.sp)
                     Spacer(Modifier.height(32.dp))
-                    Button(onClick = { showCalibration = false }) {
-                        Text("Cancel")
+                    Button(onClick = { showCalibration = false }) { Text("Cancel") }
+                }
+            }
+        }
+
+        // Map Overlay
+        if (showMap && location != null) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "📍 Map View", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Button(onClick = { showMap = false }) { Text("Close") }
                     }
+                    MapView(
+                        latitude = location!!.coordinates.latitude,
+                        longitude = location!!.coordinates.longitude,
+                        modifier = Modifier.fillMaxWidth().weight(1f)
+                    )
+                    CoordinatesDisplay(
+                        latitude = location!!.coordinates.latitude,
+                        longitude = location!!.coordinates.longitude
+                    )
                 }
             }
         }
@@ -326,12 +232,7 @@ private fun CompassScreen(repository: CompassRepository) {
 }
 
 @Composable
-private fun CircularCompass(
-    heading: HeadingData?,
-    pitch: Float = 0f,
-    roll: Float = 0f,
-    modifier: Modifier = Modifier
-) {
+private fun CircularCompass(heading: HeadingData?, pitch: Float = 0f, roll: Float = 0f, modifier: Modifier = Modifier) {
     val textMeasurer = rememberTextMeasurer()
     val target = heading?.degrees ?: 0f
     val animatedDegrees = remember { Animatable(0f) }
@@ -347,8 +248,7 @@ private fun CircularCompass(
 
     Canvas(modifier = modifier) {
         val d = minOf(size.width, size.height)
-        val cx = size.width / 2f
-        val cy = size.height / 2f
+        val cx = size.width / 2f; val cy = size.height / 2f
         val outerR = d / 2f - 30f * density
         fun dp(v: Float) = v * density
 
@@ -357,19 +257,16 @@ private fun CircularCompass(
         rotate(-headingAngle, pivot = Offset(cx, cy)) {
             for (i in 0 until 360 step 2) {
                 if (i % 10 == 0) continue
-                val a = (i - 90) * PI / 180.0
-                val c = cos(a).toFloat(); val s = sin(a).toFloat()
+                val a = (i - 90) * PI / 180.0; val c = cos(a).toFloat(); val s = sin(a).toFloat()
                 drawLine(color = DialGrey, start = Offset(cx + (outerR - dp(10f)) * c, cy + (outerR - dp(10f)) * s), end = Offset(cx + outerR * c, cy + outerR * s), strokeWidth = dp(1.5f))
             }
             for (i in 0 until 360 step 10) {
                 if (i % 30 == 0) continue
-                val a = (i - 90) * PI / 180.0
-                val c = cos(a).toFloat(); val s = sin(a).toFloat()
+                val a = (i - 90) * PI / 180.0; val c = cos(a).toFloat(); val s = sin(a).toFloat()
                 drawLine(color = White.copy(alpha = 0.85f), start = Offset(cx + (outerR - dp(13f)) * c, cy + (outerR - dp(13f)) * s), end = Offset(cx + (outerR + dp(2f)) * c, cy + (outerR + dp(2f)) * s), strokeWidth = dp(2f))
             }
             for (i in 0 until 360 step 30) {
-                val a = (i - 90) * PI / 180.0
-                val c = cos(a).toFloat(); val s = sin(a).toFloat()
+                val a = (i - 90) * PI / 180.0; val c = cos(a).toFloat(); val s = sin(a).toFloat()
                 drawLine(color = White, start = Offset(cx + (outerR - dp(15f)) * c, cy + (outerR - dp(15f)) * s), end = Offset(cx + (outerR + dp(6f)) * c, cy + (outerR + dp(6f)) * s), strokeWidth = dp(3f))
             }
             val nc = cos((-90.0) * PI / 180.0).toFloat(); val ns = sin((-90.0) * PI / 180.0).toFloat()
@@ -378,8 +275,7 @@ private fun CircularCompass(
 
         for (i in 0 until 360 step 30) {
             val screenAngle = i - headingAngle
-            val a = (screenAngle - 90) * PI / 180.0
-            val c = cos(a).toFloat(); val s = sin(a).toFloat()
+            val a = (screenAngle - 90) * PI / 180.0; val c = cos(a).toFloat(); val s = sin(a).toFloat()
             if (i % 90 == 0) {
                 val label = when (i) { 0 -> "N"; 90 -> "E"; 180 -> "S"; else -> "W" }
                 val r = outerR - dp(48f)
@@ -395,25 +291,17 @@ private fun CircularCompass(
             }
         }
 
-        // Center crosshair
         val crossHalf = outerR * 0.23f
         drawCircle(color = DialGrey, radius = dp(7f), center = Offset(cx, cy))
         drawLine(color = White, start = Offset(cx - crossHalf, cy), end = Offset(cx + crossHalf, cy), strokeWidth = dp(2f))
         drawLine(color = White, start = Offset(cx, cy - crossHalf), end = Offset(cx, cy + crossHalf), strokeWidth = dp(2f))
 
-        // Horizon Level Ball (Bubble Level)
         val levelRadius = dp(20f)
         drawCircle(color = Color(0xFF222222), radius = levelRadius, center = Offset(cx, cy), style = Stroke(width = dp(1.5f)))
-
-        val maxTilt = 15f
-        val maxOffset = levelRadius - dp(3f)
+        val maxTilt = 15f; val maxOffset = levelRadius - dp(3f)
         val rollOffset = (roll / maxTilt).coerceIn(-1f, 1f) * maxOffset
         val pitchOffset = (pitch / maxTilt).coerceIn(-1f, 1f) * maxOffset
-
-        val bubbleX = cx + rollOffset
-        val bubbleY = cy - pitchOffset
-        val bubbleRadius = dp(8f)
-
+        val bubbleX = cx + rollOffset; val bubbleY = cy - pitchOffset; val bubbleRadius = dp(8f)
         drawCircle(color = Color(0xFF00E676), radius = bubbleRadius, center = Offset(bubbleX, bubbleY))
         drawCircle(color = Color.White.copy(alpha = 0.6f), radius = bubbleRadius * 0.3f, center = Offset(bubbleX - dp(2f), bubbleY - dp(2f)))
     }

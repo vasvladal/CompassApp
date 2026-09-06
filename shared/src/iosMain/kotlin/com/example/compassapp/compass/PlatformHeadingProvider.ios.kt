@@ -15,7 +15,6 @@ actual class PlatformHeadingProvider actual constructor(
     private val locationManager = CLLocationManager()
     private var delegate: HeadingDelegate? = null
     private var isRunning = false
-
     private val motionManager = CMMotionManager()
     private var latestPitch = 0f
     private var latestRoll = 0f
@@ -24,10 +23,7 @@ actual class PlatformHeadingProvider actual constructor(
 
     actual fun start(onError: (String) -> Unit) {
         if (isRunning) return
-        if (!CLLocationManager.headingAvailable()) {
-            onError("Compass sensor is not available on this device")
-            return
-        }
+        if (!CLLocationManager.headingAvailable()) { onError("Compass sensor is not available on this device"); return }
         val newDelegate = HeadingDelegate(this)
         delegate = newDelegate
         locationManager.delegate = newDelegate
@@ -36,15 +32,11 @@ actual class PlatformHeadingProvider actual constructor(
 
         if (motionManager.isDeviceMotionAvailable) {
             motionManager.deviceMotionUpdateInterval = 0.1
-            motionManager.startDeviceMotionUpdatesToQueue(
-                NSOperationQueue.currentQueue ?: NSOperationQueue.mainQueue
-            ) { motion, error ->
+            motionManager.startDeviceMotionUpdatesToQueue(NSOperationQueue.currentQueue ?: NSOperationQueue.mainQueue) { motion, error ->
                 if (motion != null) {
                     latestPitch = (motion.attitude.pitch * 180.0 / PI).toFloat()
                     latestRoll = (motion.attitude.roll * 180.0 / PI).toFloat()
-                    if (lastHeading != null) {
-                        onHeadingUpdate(lastHeading!!, lastAccuracy, null, latestPitch, latestRoll)
-                    }
+                    if (lastHeading != null) onHeadingUpdate(lastHeading!!, lastAccuracy, null, latestPitch, latestRoll)
                 }
             }
         }
@@ -61,22 +53,17 @@ actual class PlatformHeadingProvider actual constructor(
     }
 
     fun updateHeading(heading: Float, accuracy: Float?) {
-        lastHeading = heading
-        lastAccuracy = accuracy
+        lastHeading = heading; lastAccuracy = accuracy
         onHeadingUpdate(heading, accuracy, null, latestPitch, latestRoll)
     }
 }
 
-private class HeadingDelegate(
-    private val provider: PlatformHeadingProvider
-) : NSObject(), CLLocationManagerDelegateProtocol {
+private class HeadingDelegate(private val provider: PlatformHeadingProvider) : NSObject(), CLLocationManagerDelegateProtocol {
     override fun locationManager(manager: CLLocationManager, didUpdateHeading: CLHeading) {
         val trueHeading = didUpdateHeading.trueHeading
         val magneticHeading = didUpdateHeading.magneticHeading
         val heading = if (trueHeading >= 0) trueHeading else magneticHeading
-        if (heading >= 0) {
-            provider.updateHeading(heading.toFloat(), didUpdateHeading.headingAccuracy.toFloat())
-        }
+        if (heading >= 0) provider.updateHeading(heading.toFloat(), didUpdateHeading.headingAccuracy.toFloat())
     }
     override fun locationManager(manager: CLLocationManager, didFailWithError: NSError) {}
 }
