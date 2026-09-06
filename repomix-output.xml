@@ -1,0 +1,1258 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: app/src/main/kotlin/com/example/compassapp/MainActivity.kt, app/src/main/res/values/strings.xml, app/src/main/AndroidManifest.xml, app/build.gradle.kts, gradle/wrapper/gradle-wrapper.properties, gradle/libs.versions.toml, iosApp/iosApp/ContentView.swift, iosApp/iosApp/Info.plist, iosApp/iosApp/iOSApp.swift, shared/src/androidMain/kotlin/com/example/compassapp/compass/CompassContextInitializer.kt, shared/src/androidMain/kotlin/com/example/compassapp/compass/PlatformHeadingProvider.android.kt, shared/src/androidMain/AndroidManifest.xml, shared/src/commonMain/kotlin/com/example/compassapp/compass/CompassRepository.kt, shared/src/commonMain/kotlin/com/example/compassapp/compass/HeadingData.kt, shared/src/commonMain/kotlin/com/example/compassapp/ui/CompassScreen.kt, shared/src/iosMain/kotlin/com/example/compassapp/compass/PlatformHeadingProvider.ios.kt, shared/src/iosMain/kotlin/com/example/compassapp/ui/MainViewController.kt, shared/build.gradle.kts, build.gradle.kts, gradle.properties, local.properties, settings.gradle.kts, gradlew.bat
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app/
+  src/
+    main/
+      kotlin/
+        com/
+          example/
+            compassapp/
+              MainActivity.kt
+      res/
+        values/
+          strings.xml
+      AndroidManifest.xml
+  build.gradle.kts
+gradle/
+  wrapper/
+    gradle-wrapper.properties
+  libs.versions.toml
+iosApp/
+  iosApp/
+    ContentView.swift
+    Info.plist
+    iOSApp.swift
+shared/
+  src/
+    androidMain/
+      kotlin/
+        com/
+          example/
+            compassapp/
+              compass/
+                CompassContextInitializer.kt
+                PlatformHeadingProvider.android.kt
+      AndroidManifest.xml
+    commonMain/
+      kotlin/
+        com/
+          example/
+            compassapp/
+              compass/
+                CompassRepository.kt
+                HeadingData.kt
+              ui/
+                CompassScreen.kt
+    iosMain/
+      kotlin/
+        com/
+          example/
+            compassapp/
+              compass/
+                PlatformHeadingProvider.ios.kt
+              ui/
+                MainViewController.kt
+  build.gradle.kts
+build.gradle.kts
+gradle.properties
+gradlew.bat
+local.properties
+settings.gradle.kts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app/src/main/kotlin/com/example/compassapp/MainActivity.kt">
+package com.example.compassapp
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import com.example.compassapp.ui.CompassApp
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            CompassApp()
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/res/values/strings.xml">
+<resources>
+    <string name="app_name">CompassApp</string>
+</resources>
+</file>
+
+<file path="app/src/main/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
+</file>
+
+<file path="app/build.gradle.kts">
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.compose.multiplatform)
+}
+
+android {
+    namespace = "com.example.compassapp"
+    compileSdk = 37
+
+    defaultConfig {
+        applicationId = "com.example.compassapp"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        //jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation(project(":shared"))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.ktx)
+}
+</file>
+
+<file path="gradle/wrapper/gradle-wrapper.properties">
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-9.7.1-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+</file>
+
+<file path="gradle/libs.versions.toml">
+[versions]
+kotlin = "2.4.10"
+compose-multiplatform = "1.12.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-datetime = "0.8.0"
+compass = "4.0.0"
+android-gradle = "9.4.0"
+androidx-core = "1.19.0"
+androidx-activity-compose = "1.13.0"
+androidx-startup = "1.2.0"
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+android-application = { id = "com.android.application", version.ref = "android-gradle" }
+android-library = { id = "com.android.library", version.ref = "android-gradle" }
+
+[libraries]
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+# Compass geolocation
+compass-geolocation = { group = "dev.jordond.compass", name = "geolocation", version.ref = "compass" }
+compass-geolocation-mobile = { group = "dev.jordond.compass", name = "geolocation-mobile", version.ref = "compass" }
+
+# Compass geocoder (ADD THESE TWO LINES)
+compass-geocoder = { group = "dev.jordond.compass", name = "geocoder", version.ref = "compass" }
+compass-geocoder-mobile = { group = "dev.jordond.compass", name = "geocoder-mobile", version.ref = "compass" }
+
+
+# Compose Multiplatform
+compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "compose-multiplatform" }
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose-multiplatform" }
+compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-multiplatform" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "compose-multiplatform" }
+
+# Android
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
+androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
+
+[bundles]
+compose-all = ["compose-runtime", "compose-foundation", "compose-material3", "compose-ui"]
+</file>
+
+<file path="iosApp/iosApp/ContentView.swift">
+import SwiftUI
+import Shared
+
+struct ComposeView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        MainViewControllerKt.MainViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
+struct ContentView: View {
+    var body: some View {
+        ComposeView()
+            .ignoresSafeArea(.keyboard)
+    }
+}
+</file>
+
+<file path="iosApp/iosApp/Info.plist">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>CompassApp</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.example.compassapp</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>UILaunchScreen</key>
+    <dict/>
+
+    <!--
+      Required by dev.jordond.compass for geolocation on iOS, and also used
+      when requesting authorization for heading (compass) updates.
+      See: https://compass.jordond.dev/docs/setup/android-ios
+    -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses your location to show your current coordinates and device heading.</string>
+</dict>
+</plist>
+</file>
+
+<file path="iosApp/iosApp/iOSApp.swift">
+import SwiftUI
+
+@main
+struct iOSApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+</file>
+
+<file path="shared/src/androidMain/kotlin/com/example/compassapp/compass/CompassContextInitializer.kt">
+package com.example.compassapp.compass
+
+import android.content.Context
+import androidx.startup.Initializer
+
+/**
+ * Holds the application Context so common/androidMain code (like the
+ * heading sensor provider) can reach it without every caller having to
+ * thread a Context through commonMain APIs.
+ *
+ * Populated automatically at process start by [CompassContextInitializer]
+ * via androidx.startup -- see shared/src/androidMain/AndroidManifest.xml.
+ */
+internal object AndroidContextHolder {
+    lateinit var appContext: Context
+        private set
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+}
+
+class CompassContextInitializer : Initializer<Unit> {
+    override fun create(context: Context) {
+        AndroidContextHolder.init(context)
+    }
+
+    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
+}
+</file>
+
+<file path="shared/src/androidMain/kotlin/com/example/compassapp/compass/PlatformHeadingProvider.android.kt">
+package com.example.compassapp.compass
+
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import kotlin.math.PI
+
+actual class PlatformHeadingProvider actual constructor(
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+) {
+    private val sensorManager: SensorManager by lazy {
+        AndroidContextHolder.appContext.getSystemService(SensorManager::class.java)
+    }
+
+    private val gravity = FloatArray(3)
+    private val geomagnetic = FloatArray(3)
+    private var hasGravity = false
+    private var hasGeomagnetic = false
+    private var isRunning = false
+
+    private val listener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            when (event.sensor.type) {
+                Sensor.TYPE_ACCELEROMETER -> {
+                    System.arraycopy(event.values, 0, gravity, 0, gravity.size)
+                    hasGravity = true
+                }
+                Sensor.TYPE_MAGNETIC_FIELD -> {
+                    System.arraycopy(event.values, 0, geomagnetic, 0, geomagnetic.size)
+                    hasGeomagnetic = true
+                }
+            }
+
+            if (hasGravity && hasGeomagnetic) {
+                val rotationMatrix = FloatArray(9)
+                val success = SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)
+                if (success) {
+                    val orientation = FloatArray(3)
+                    SensorManager.getOrientation(rotationMatrix, orientation)
+                    val azimuthRadians = orientation[0]
+                    val azimuthDegrees = (azimuthRadians * 180f / PI.toFloat() + 360f) % 360f
+                    onHeadingUpdate(azimuthDegrees, null)
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    actual fun start(onError: (String) -> Unit) {
+        if (isRunning) return
+
+        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+
+        if (accelerometer == null || magnetometer == null) {
+            onError("Compass sensors are not available on this device")
+            return
+        }
+
+        isRunning = true
+        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        sensorManager.registerListener(listener, magnetometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    actual fun stop() {
+        if (!isRunning) return
+        sensorManager.unregisterListener(listener)
+        hasGravity = false
+        hasGeomagnetic = false
+        isRunning = false
+    }
+}
+</file>
+
+<file path="shared/src/androidMain/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      No ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION declaration needed here:
+      the dev.jordond.compass:geolocation-mobile artifact merges those permissions
+      into the final manifest automatically (see compass.jordond.dev/docs/setup/android-ios).
+    -->
+
+    <application>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.example.compassapp.compass.CompassContextInitializer"
+                android:value="androidx.startup" />
+        </provider>
+    </application>
+
+</manifest>
+</file>
+
+<file path="shared/src/commonMain/kotlin/com/example/compassapp/compass/CompassRepository.kt">
+package com.example.compassapp.compass
+
+import dev.jordond.compass.Location
+import dev.jordond.compass.geocoder.Geocoder
+import dev.jordond.compass.geocoder.placeOrNull
+import dev.jordond.compass.geolocation.Geolocator // <-- MUST be Geolocator, not Locator
+import dev.jordond.compass.geolocation.mobile
+import dev.jordond.compass.geolocation.mobile.mobile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+
+class CompassRepository {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // 1. MUST be Geolocator.mobile()
+    private val geolocator = Geolocator.mobile()
+
+    // 2. Initialize the Geocoder
+    private val geocoder = Geocoder()
+
+    private val _location = MutableStateFlow<Location?>(null)
+    val location: StateFlow<Location?> = _location.asStateFlow()
+
+    private val _locationError = MutableStateFlow<String?>(null)
+    val locationError: StateFlow<String?> = _locationError.asStateFlow()
+
+    private val _placeName = MutableStateFlow<String?>(null)
+    val placeName: StateFlow<String?> = _placeName.asStateFlow()
+
+    private val _heading = MutableStateFlow<HeadingData?>(null)
+    val heading: StateFlow<HeadingData?> = _heading.asStateFlow()
+
+    private val _headingError = MutableStateFlow<String?>(null)
+    val headingError: StateFlow<String?> = _headingError.asStateFlow()
+
+    private var trackingJob: Job? = null
+    private var headingProvider: PlatformHeadingProvider? = null
+
+    fun startLocationTracking() {
+        if (trackingJob != null) return
+        trackingJob = geolocator.locationUpdates
+            .onEach { location ->
+                _location.value = location
+                _locationError.value = null
+                reverseGeocode(location)
+            }
+            .launchIn(scope)
+    }
+
+    private fun reverseGeocode(location: Location) {
+        scope.launch {
+            try {
+                // 3. Use placeOrNull to get the Place object directly
+                val place = geocoder.placeOrNull(location.coordinates)
+                _placeName.value = place?.locality ?: "Unknown Location"
+            } catch (e: Exception) {
+                _placeName.value = null
+            }
+        }
+    }
+
+    fun stopLocationTracking() {
+        trackingJob?.cancel()
+        trackingJob = null
+        _location.value = null
+        _locationError.value = null
+        _placeName.value = null
+    }
+
+    fun startHeadingUpdates() {
+        if (headingProvider != null) return
+        val provider = PlatformHeadingProvider { degrees, accuracy ->
+            _heading.value = HeadingData.fromDegrees(degrees, accuracy)
+            _headingError.value = null
+        }
+        headingProvider = provider
+        provider.start { error -> _headingError.value = error }
+    }
+
+    fun stopHeadingUpdates() {
+        headingProvider?.stop()
+        headingProvider = null
+        _heading.value = null
+        _headingError.value = null
+    }
+
+    fun startAll() {
+        startLocationTracking()
+        startHeadingUpdates()
+    }
+
+    fun stopAll() {
+        stopLocationTracking()
+        stopHeadingUpdates()
+    }
+}
+</file>
+
+<file path="shared/src/commonMain/kotlin/com/example/compassapp/compass/HeadingData.kt">
+package com.example.compassapp.compass
+
+import kotlin.math.pow
+import kotlin.math.round
+
+/**
+ * Device heading (compass) reading, in degrees from magnetic/true north.
+ *
+ * NOTE: dev.jordond.compass only covers geolocation & geocoding, it has no
+ * magnetometer/heading API -- so heading is read directly from the platform
+ * sensors via [PlatformHeadingProvider] below.
+ */
+data class HeadingData(
+    val degrees: Float,
+    val cardinalDirection: String,
+    val accuracyDegrees: Float? = null
+) {
+    fun formatDegrees(): String = "${degrees.toDouble().roundTo(1)}°"
+
+    companion object {
+        private val directions = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+
+        fun fromDegrees(degrees: Float, accuracyDegrees: Float? = null): HeadingData {
+            val normalized = ((degrees % 360) + 360) % 360
+            val index = ((normalized + 22.5f) / 45f).toInt() % 8
+            return HeadingData(
+                degrees = normalized,
+                cardinalDirection = directions[index],
+                accuracyDegrees = accuracyDegrees
+            )
+        }
+    }
+}
+
+/**
+ * Rounds a Double to [decimals] places using only multiplatform-safe stdlib
+ * functions (kotlin.math.*, no java.lang.Math / String.format in commonMain).
+ */
+fun Double.roundTo(decimals: Int): Double {
+    val factor = 10.0.pow(decimals)
+    return round(this * factor) / factor
+}
+
+/**
+ * Platform-specific heading sensor access.
+ *  - Android: SensorManager (accelerometer + magnetometer -> rotation matrix)
+ *  - iOS: CLLocationManager.startUpdatingHeading()
+ */
+expect class PlatformHeadingProvider(
+    onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+) {
+    fun start(onError: (String) -> Unit)
+    fun stop()
+}
+</file>
+
+<file path="shared/src/commonMain/kotlin/com/example/compassapp/ui/CompassScreen.kt">
+package com.example.compassapp.ui
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.compassapp.compass.CompassRepository
+import com.example.compassapp.compass.HeadingData // <-- Ensures HeadingData is resolved
+import com.example.compassapp.compass.roundTo
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+
+@Composable
+fun CompassApp(repository: CompassRepository = remember { CompassRepository() }) {
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            CompassScreen(repository)
+        }
+    }
+}
+
+@Composable
+private fun CompassScreen(repository: CompassRepository) {
+    val location by repository.location.collectAsState()
+    val locationError by repository.locationError.collectAsState()
+    val placeName by repository.placeName.collectAsState()
+    val heading by repository.heading.collectAsState()
+    val headingError by repository.headingError.collectAsState()
+    var isRunning by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose { repository.stopAll() }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Heading readout
+        Text(
+            text = heading?.let { "${it.formatDegrees()}  ${it.cardinalDirection}" } ?: "—",
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+        )
+        if (headingError != null) {
+            Text(
+                text = headingError!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // ── Circular compass dial with arrow ──────────────────────────
+        CircularCompass(
+            heading = heading,
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .aspectRatio(1f)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // ── Location card ─────────────────────────────────────────────
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(4.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("📍 Location", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (location != null) {
+                    val coords = location!!.coordinates
+
+                    // Place name (from reverse geocoding)
+                    if (placeName != null) {
+                        Text(
+                            text = placeName!!,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
+
+                    // Latitude / Longitude side-by-side
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text("Latitude", style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                coords.latitude.roundTo(6).toString(),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                        Column {
+                            Text("Longitude", style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                coords.longitude.roundTo(6).toString(),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                } else if (locationError != null) {
+                    Text("Error: $locationError", color = MaterialTheme.colorScheme.error)
+                } else {
+                    Text("—")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(onClick = {
+            if (isRunning) {
+                repository.stopAll()
+            } else {
+                repository.startAll()
+            }
+            isRunning = !isRunning
+        }) {
+            Text(if (isRunning) "Stop" else "Start")
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Circular compass: fixed 0-360° dial + rotating arrow needle
+// ─────────────────────────────────────────────────────────────────────────────
+@Composable
+private fun CircularCompass(
+    heading: HeadingData?,
+    modifier: Modifier = Modifier
+) {
+    val textMeasurer = rememberTextMeasurer()
+    val degrees = heading?.degrees ?: 0f
+
+    val surface = MaterialTheme.colorScheme.surface
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val primary = MaterialTheme.colorScheme.primary
+    val error = MaterialTheme.colorScheme.error
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasSize = minOf(size.width, size.height)
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+            val outerRadius = canvasSize / 2f - 8f
+            val innerRadius = outerRadius - 20f
+
+            // ── Outer bezel ───────────────────────────────────────────
+            drawCircle(
+                color = surfaceVariant,
+                radius = outerRadius,
+                center = Offset(centerX, centerY)
+            )
+            drawCircle(
+                color = onSurface.copy(alpha = 0.4f),
+                radius = outerRadius,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 2f)
+            )
+
+            // ── Inner face ────────────────────────────────────────────
+            drawCircle(
+                color = surface,
+                radius = innerRadius,
+                center = Offset(centerX, centerY)
+            )
+            drawCircle(
+                color = onSurface.copy(alpha = 0.15f),
+                radius = innerRadius,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 1f)
+            )
+
+            // ── Tick marks (fixed, 0° at top) ─────────────────────────
+            for (i in 0 until 360 step 5) {
+                val isCardinal = i % 90 == 0
+                val isMajor = i % 30 == 0
+                val isMinor = i % 10 == 0
+
+                val tickLength = when {
+                    isCardinal -> 24f
+                    isMajor    -> 16f
+                    isMinor    -> 9f
+                    else       -> 5f
+                }
+                val tickWidth = when {
+                    isCardinal -> 3.5f
+                    isMajor    -> 2f
+                    else       -> 1f
+                }
+                val tickColor = when {
+                    isCardinal -> onSurface
+                    isMajor    -> onSurface.copy(alpha = 0.7f)
+                    else       -> onSurface.copy(alpha = 0.35f)
+                }
+
+                val angleRad = (i - 90) * PI / 180.0
+                val outerX = centerX + outerRadius * cos(angleRad).toFloat()
+                val outerY = centerY + outerRadius * sin(angleRad).toFloat()
+                val innerX = centerX + (outerRadius - tickLength) * cos(angleRad).toFloat()
+                val innerY = centerY + (outerRadius - tickLength) * sin(angleRad).toFloat()
+
+                drawLine(
+                    color = tickColor,
+                    start = Offset(innerX, innerY),
+                    end = Offset(outerX, outerY),
+                    strokeWidth = tickWidth
+                )
+            }
+
+            // ── Degree numbers every 30° ──────────────────────────────
+            val numberRadius = innerRadius - 14f
+            for (i in 0 until 360 step 30) {
+                val angleRad = (i - 90) * PI / 180.0
+                val x = centerX + numberRadius * cos(angleRad).toFloat()
+                val y = centerY + numberRadius * sin(angleRad).toFloat()
+
+                val label = when (i) {
+                    0   -> "N"
+                    90  -> "E"
+                    180 -> "S"
+                    270 -> "W"
+                    else -> i.toString()
+                }
+
+                val isCardinal = i % 90 == 0
+                val style = TextStyle(
+                    fontSize = (canvasSize / (if (isCardinal) 20f else 30f)).sp,
+                    fontWeight = if (isCardinal) FontWeight.Bold else FontWeight.Normal,
+                    color = if (i == 0) error else onSurface.copy(alpha = if (isCardinal) 1f else 0.7f)
+                )
+
+                val measured = textMeasurer.measure(label, style = style)
+                translate(
+                    left = x - measured.size.width / 2f,
+                    top = y - measured.size.height / 2f
+                ) {
+                    drawText(measured)
+                }
+            }
+
+            // ── Arrow needle (rotates with heading) ───────────────────
+            rotate(degrees = degrees, pivot = Offset(centerX, centerY)) {
+                val needleLength = innerRadius - 30f
+                val needleHalfWidth = 10f
+
+                val northPath = Path().apply {
+                    moveTo(centerX, centerY - needleLength)
+                    lineTo(centerX - needleHalfWidth, centerY)
+                    lineTo(centerX + needleHalfWidth, centerY)
+                    close()
+                }
+                drawPath(path = northPath, color = error)
+
+                val southPath = Path().apply {
+                    moveTo(centerX, centerY + needleLength)
+                    lineTo(centerX - needleHalfWidth, centerY)
+                    lineTo(centerX + needleHalfWidth, centerY)
+                    close()
+                }
+                drawPath(path = southPath, color = onSurface.copy(alpha = 0.35f))
+
+                val fullNeedle = Path().apply {
+                    moveTo(centerX, centerY - needleLength)
+                    lineTo(centerX - needleHalfWidth, centerY)
+                    lineTo(centerX, centerY + needleLength)
+                    lineTo(centerX + needleHalfWidth, centerY)
+                    close()
+                }
+                drawPath(
+                    path = fullNeedle,
+                    color = onSurface.copy(alpha = 0.25f),
+                    style = Stroke(width = 1.5f)
+                )
+            }
+
+            // ── Center hub ────────────────────────────────────────────
+            drawCircle(
+                color = onSurface,
+                radius = 10f,
+                center = Offset(centerX, centerY)
+            )
+            drawCircle(
+                color = primary,
+                radius = 5f,
+                center = Offset(centerX, centerY)
+            )
+        }
+    }
+}
+</file>
+
+<file path="shared/src/iosMain/kotlin/com/example/compassapp/compass/PlatformHeadingProvider.ios.kt">
+package com.example.compassapp.compass
+
+import platform.CoreLocation.CLHeading
+import platform.CoreLocation.CLLocationManager
+import platform.CoreLocation.CLLocationManagerDelegateProtocol
+import platform.Foundation.NSError
+import platform.darwin.NSObject
+
+actual class PlatformHeadingProvider actual constructor(
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+) {
+    private val locationManager = CLLocationManager()
+    private var delegate: HeadingDelegate? = null
+    private var isRunning = false
+
+    actual fun start(onError: (String) -> Unit) {
+        if (isRunning) return
+
+        if (!CLLocationManager.headingAvailable()) {
+            onError("Compass sensor is not available on this device")
+            return
+        }
+
+        val newDelegate = HeadingDelegate(onHeadingUpdate)
+        delegate = newDelegate
+        locationManager.delegate = newDelegate
+
+        // Heading updates require location authorization on iOS.
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingHeading()
+        isRunning = true
+    }
+
+    actual fun stop() {
+        if (!isRunning) return
+        locationManager.stopUpdatingHeading()
+        locationManager.delegate = null
+        delegate = null
+        isRunning = false
+    }
+}
+
+private class HeadingDelegate(
+    private val onHeadingUpdate: (degrees: Float, accuracyDegrees: Float?) -> Unit
+) : NSObject(), CLLocationManagerDelegateProtocol {
+
+    override fun locationManager(manager: CLLocationManager, didUpdateHeading: CLHeading) {
+        val trueHeading = didUpdateHeading.trueHeading
+        val magneticHeading = didUpdateHeading.magneticHeading
+        val heading = if (trueHeading >= 0) trueHeading else magneticHeading
+        if (heading >= 0) {
+            onHeadingUpdate(heading.toFloat(), didUpdateHeading.headingAccuracy.toFloat())
+        }
+    }
+
+    override fun locationManager(manager: CLLocationManager, didFailWithError: NSError) {
+        // Heading errors surface as no further updates; startTracking() on the
+        // Geolocator side already reports location-permission problems.
+    }
+}
+</file>
+
+<file path="shared/src/iosMain/kotlin/com/example/compassapp/ui/MainViewController.kt">
+package com.example.compassapp.ui
+
+import androidx.compose.ui.window.ComposeUIViewController
+import platform.UIKit.UIViewController
+
+fun MainViewController(): UIViewController = ComposeUIViewController {
+    CompassApp()
+}
+</file>
+
+<file path="shared/build.gradle.kts">
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.android.library)
+}
+
+kotlin {
+    androidTarget {
+        compilations.all { }
+    }
+    val iosArm64 = iosArm64()
+    val iosSimulatorArm64 = iosSimulatorArm64()
+    listOf(iosArm64, iosSimulatorArm64).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.compass.geolocation)
+                implementation(libs.compass.geolocation.mobile)
+
+                // ⚠️ ADD THESE TWO LINES ⚠️
+                implementation(libs.compass.geocoder)
+                implementation(libs.compass.geocoder.mobile)
+
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.startup.runtime)
+            }
+        }
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
+        val iosArm64Main by getting { dependsOn(iosMain) }
+        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
+}
+
+android {
+    namespace = "com.example.compassapp.shared"
+    compileSdk = 37
+    defaultConfig {
+        minSdk = 24
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+</file>
+
+<file path="build.gradle.kts">
+plugins {
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose.compiler) apply false
+    alias(libs.plugins.compose.multiplatform) apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+</file>
+
+<file path="gradle.properties">
+org.gradle.jvmargs=-Xmx2048M
+kotlin.code.style=official
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+kotlin.mpp.androidSourceSetLayoutVersion=2
+android.defaults.buildfeatures.resvalues=true
+android.sdk.defaultTargetSdkToCompileSdkIfUnset=false
+android.enableAppCompileTimeRClass=false
+android.usesSdkInManifest.disallowed=false
+android.uniquePackageNames=false
+android.dependency.useConstraints=true
+android.r8.strictFullModeForKeepRules=false
+android.r8.optimizedResourceShrinking=false
+android.builtInKotlin=false
+android.newDsl=false
+</file>
+
+<file path="gradlew.bat">
+@rem
+@rem Copyright 2015 the original author or authors.
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem
+@rem      https://www.apache.org/licenses/LICENSE-2.0
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+
+@if "%DEBUG%"=="" @echo off
+@rem ##########################################################################
+@rem
+@rem  Gradle startup script for Windows
+@rem
+@rem ##########################################################################
+
+@rem Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
+set DIRNAME=%~dp0
+if "%DIRNAME%"=="" set DIRNAME=.
+@rem This is normally unused
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
+@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+set DEFAULT_JVM_OPTS=
+
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if "%ERRORLEVEL%"=="0" goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+
+if exist "%JAVA_EXE%" goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME% 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:execute
+@rem Setup the command line
+
+set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
+
+
+@rem Execute Gradle
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+
+:end
+@rem End local scope for the variables with windows NT shell
+if "%ERRORLEVEL%"=="0" goto mainEnd
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem the _cmd.exe /c_ return code!
+set EXIT_CODE=%ERRORLEVEL%
+if %EXIT_CODE% equ 0 set EXIT_CODE=1
+if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
+exit /b %EXIT_CODE%
+
+:mainEnd
+if "%OS%"=="Windows_NT" endlocal
+
+:omega
+</file>
+
+<file path="local.properties">
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the SDK. This is only used by Gradle.
+# For customization when using a Version Control System, please read the
+# header note.
+#Tue Sep 01 11:42:09 MSK 2026
+sdk.dir=D\:\\AndroidSDK
+</file>
+
+<file path="settings.gradle.kts">
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    // No explicit versionCatalogs {} block needed: Gradle automatically
+    // registers gradle/libs.versions.toml as the "libs" catalog because it's
+    // at the default convention path. Declaring it again here would call
+    // from(...) twice on the same catalog and fail with:
+    //   "you can only call the 'from' method a single time"
+}
+
+rootProject.name = "CompassApp"
+include(":shared")
+include(":app")
+</file>
+
+</files>

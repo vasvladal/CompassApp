@@ -1,0 +1,45 @@
+[versions]
+kotlin = "2.4.10"
+compose-multiplatform = "1.12.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-datetime = "0.8.0"
+compass = "4.0.0"
+android-gradle = "9.4.0"
+androidx-core = "1.19.0"
+androidx-activity-compose = "1.13.0"
+androidx-startup = "1.2.0"
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+android-application = { id = "com.android.application", version.ref = "android-gradle" }
+android-library = { id = "com.android.library", version.ref = "android-gradle" }
+
+[libraries]
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+# Compass geolocation
+compass-geolocation = { group = "dev.jordond.compass", name = "geolocation", version.ref = "compass" }
+compass-geolocation-mobile = { group = "dev.jordond.compass", name = "geolocation-mobile", version.ref = "compass" }
+
+# Compass geocoder (ADD THESE TWO LINES)
+compass-geocoder = { group = "dev.jordond.compass", name = "geocoder", version.ref = "compass" }
+compass-geocoder-mobile = { group = "dev.jordond.compass", name = "geocoder-mobile", version.ref = "compass" }
+
+
+# Compose Multiplatform
+compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "compose-multiplatform" }
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose-multiplatform" }
+compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-multiplatform" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "compose-multiplatform" }
+
+# Android
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
+androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
+
+[bundles]
+compose-all = ["compose-runtime", "compose-foundation", "compose-material3", "compose-ui"]

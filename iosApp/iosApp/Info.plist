@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>CompassApp</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.example.compassapp</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>UILaunchScreen</key>
+    <dict/>
+
+    <!--
+      Required by dev.jordond.compass for geolocation on iOS, and also used
+      when requesting authorization for heading (compass) updates.
+      See: https://compass.jordond.dev/docs/setup/android-ios
+    -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses your location to show your current coordinates and device heading.</string>
+</dict>
+</plist>
