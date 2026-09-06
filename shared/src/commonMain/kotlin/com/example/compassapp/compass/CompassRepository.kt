@@ -13,6 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -45,8 +46,19 @@ class CompassRepository {
     private var headingProvider: PlatformHeadingProvider? = null
 
     fun startLocationTracking() {
-        if (trackingJob != null) return
+        // Guard on isActive (not just null) so a previous permission-denied /
+        // provider-unavailable failure doesn't permanently block retrying --
+        // a failed flow leaves trackingJob non-null but no longer active.
+        if (trackingJob?.isActive == true) return
+
         trackingJob = geolocator.locationUpdates
+            .catch { throwable ->
+                // Without this, any exception from the flow (permission denied,
+                // location services disabled, no provider available, etc.) was
+                // silently swallowed and the UI just sat on "--" forever.
+                _locationError.value = throwable.message
+                    ?: "Couldn't get your location. Make sure location access is allowed and location services are turned on."
+            }
             .onEach { location ->
                 _location.value = location
                 _locationError.value = null
@@ -82,7 +94,12 @@ class CompassRepository {
             _headingError.value = null
         }
         headingProvider = provider
-        provider.start { error -> _headingError.value = error }
+        provider.start { error ->
+            _headingError.value = error
+            // Sensors unavailable / start failed -- clear the reference so the
+            // next Start tap actually retries instead of a no-op.
+            headingProvider = null
+        }
     }
 
     fun stopHeadingUpdates() {

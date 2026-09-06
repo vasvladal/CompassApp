@@ -16,3 +16,4 @@ app/build/tmp/
 build/reports/
 gradle/wrapper/gradle-wrapper.jar
 shared/build/
+.gradle/buildOutputCleanup/buildOutputCleanup.lock
