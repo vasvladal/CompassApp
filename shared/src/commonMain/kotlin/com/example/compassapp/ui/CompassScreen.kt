@@ -572,21 +572,26 @@ private fun CircularCompass(
                 strokeWidth = 4.5f
             )
 
-            // White tail
-            val tailX = cx - (radius - 40f) * cos(northAngle).toFloat()
-            val tailY = cy - (radius - 40f) * sin(northAngle).toFloat()
-            drawLine(
-                color = White.copy(alpha = 0.4f),
-                start = Offset(cx, cy),
-                end = Offset(tailX, tailY),
-                strokeWidth = 3f
-            )
         }
 
+        // Center crosshair (fixed — does not rotate with heading)
+        val crossHalf = radius * 0.22f
         drawCircle(
-            color = White,
-            radius = 6f,
+            color = DialGrey,
+            radius = radius * 0.06f,
             center = Offset(cx, cy)
+        )
+        drawLine(
+            color = White,
+            start = Offset(cx - crossHalf, cy),
+            end = Offset(cx + crossHalf, cy),
+            strokeWidth = 2f
+        )
+        drawLine(
+            color = White,
+            start = Offset(cx, cy - crossHalf),
+            end = Offset(cx, cy + crossHalf),
+            strokeWidth = 2f
         )
 
         // Top indicator triangle

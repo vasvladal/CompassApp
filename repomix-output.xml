@@ -97,7 +97,6 @@ shared/
 build.gradle.kts
 gradle.properties
 gradlew.bat
-local.properties
 settings.gradle.kts
 </directory_structure>
 
@@ -108,31 +107,6 @@ This section contains the contents of the repository's files.
 <resources>
     <string name="app_name">CompassApp</string>
 </resources>
-</file>
-
-<file path="app/src/main/AndroidManifest.xml">
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-    </application>
-
-</manifest>
 </file>
 
 <file path="app/build.gradle.kts">
@@ -445,17 +419,6 @@ if "%OS%"=="Windows_NT" endlocal
 :omega
 </file>
 
-<file path="local.properties">
-## This file must *NOT* be checked into Version Control Systems,
-# as it contains information specific to your local configuration.
-#
-# Location of the SDK. This is only used by Gradle.
-# For customization when using a Version Control System, please read the
-# header note.
-#Tue Sep 01 11:42:09 MSK 2026
-sdk.dir=D\:\\AndroidSDK
-</file>
-
 <file path="settings.gradle.kts">
 pluginManagement {
     repositories {
@@ -501,6 +464,31 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+</file>
+
+<file path="app/src/main/AndroidManifest.xml">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
 </file>
 
 <file path="shared/src/commonMain/kotlin/com/example/compassapp/compass/HeadingData.kt">
@@ -1484,21 +1472,26 @@ private fun CircularCompass(
                 strokeWidth = 4.5f
             )
 
-            // White tail
-            val tailX = cx - (radius - 40f) * cos(northAngle).toFloat()
-            val tailY = cy - (radius - 40f) * sin(northAngle).toFloat()
-            drawLine(
-                color = White.copy(alpha = 0.4f),
-                start = Offset(cx, cy),
-                end = Offset(tailX, tailY),
-                strokeWidth = 3f
-            )
         }
 
+        // Center crosshair (fixed — does not rotate with heading)
+        val crossHalf = radius * 0.22f
         drawCircle(
-            color = White,
-            radius = 6f,
+            color = DialGrey,
+            radius = radius * 0.06f,
             center = Offset(cx, cy)
+        )
+        drawLine(
+            color = White,
+            start = Offset(cx - crossHalf, cy),
+            end = Offset(cx + crossHalf, cy),
+            strokeWidth = 2f
+        )
+        drawLine(
+            color = White,
+            start = Offset(cx, cy - crossHalf),
+            end = Offset(cx, cy + crossHalf),
+            strokeWidth = 2f
         )
 
         // Top indicator triangle
