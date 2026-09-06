@@ -3,7 +3,7 @@ package com.example.compassapp.compass
 import dev.jordond.compass.Location
 import dev.jordond.compass.geocoder.Geocoder
 import dev.jordond.compass.geocoder.placeOrNull
-import dev.jordond.compass.geolocation.Geolocator // <-- MUST be Geolocator, not Locator
+import dev.jordond.compass.geolocation.Geolocator
 import dev.jordond.compass.geolocation.mobile
 import dev.jordond.compass.geolocation.mobile.mobile
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +43,7 @@ class CompassRepository {
     val headingError: StateFlow<String?> = _headingError.asStateFlow()
 
     private var trackingJob: Job? = null
+    private var trackingControlJob: Job? = null
     private var headingProvider: PlatformHeadingProvider? = null
 
     fun startLocationTracking() {
@@ -50,6 +51,11 @@ class CompassRepository {
         // provider-unavailable failure doesn't permanently block retrying --
         // a failed flow leaves trackingJob non-null but no longer active.
         if (trackingJob?.isActive == true) return
+
+        // locationUpdates only emits after track() has been started and collected.
+        // The previous implementation subscribed to locationUpdates without ever
+        // starting tracking, so the UI remained stuck on "Locating…".
+        trackingControlJob = geolocator.track().launchIn(scope)
 
         trackingJob = geolocator.locationUpdates
             .catch { throwable ->
@@ -80,11 +86,31 @@ class CompassRepository {
     }
 
     fun stopLocationTracking() {
+        geolocator.stopTracking()
+        trackingControlJob?.cancel()
+        trackingControlJob = null
         trackingJob?.cancel()
         trackingJob = null
         _location.value = null
         _locationError.value = null
         _placeName.value = null
+    }
+
+    /** Force a fresh location fix for the coordinates button. */
+    fun refreshLocation() {
+        scope.launch {
+            try {
+                geolocator.current().onSuccess { location ->
+                    _location.value = location
+                    _locationError.value = null
+                    reverseGeocode(location)
+                }.onFailed { error ->
+                    _locationError.value = error.message
+                }
+            } catch (e: Exception) {
+                _locationError.value = e.message ?: "Couldn't get your location."
+            }
+        }
     }
 
     fun startHeadingUpdates() {

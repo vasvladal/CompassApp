@@ -20,7 +20,6 @@ actual class PlatformHeadingProvider actual constructor(
         AndroidContextHolder.appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
-    // Fallback path only, used on the rare device with no rotation-vector sensor.
     private val gravity = FloatArray(3)
     private val geomagnetic = FloatArray(3)
     private var hasGravity = false
@@ -51,8 +50,8 @@ actual class PlatformHeadingProvider actual constructor(
                 Sensor.TYPE_MAGNETIC_FIELD -> {
                     magneticStrengthMicroTesla = kotlin.math.sqrt(
                         event.values.getOrElse(0) { 0f } * event.values.getOrElse(0) { 0f } +
-                        event.values.getOrElse(1) { 0f } * event.values.getOrElse(1) { 0f } +
-                        event.values.getOrElse(2) { 0f } * event.values.getOrElse(2) { 0f }
+                                event.values.getOrElse(1) { 0f } * event.values.getOrElse(1) { 0f } +
+                                event.values.getOrElse(2) { 0f } * event.values.getOrElse(2) { 0f }
                     )
                     if (usingRotationVector) return
                     System.arraycopy(event.values, 0, geomagnetic, 0, geomagnetic.size)
@@ -72,48 +71,50 @@ actual class PlatformHeadingProvider actual constructor(
         }
     }
 
-    /**
-     * Remaps the rotation matrix for the device's current display rotation before
-     * reading the azimuth.
-     *
-     * Sensor axes are fixed to the device's natural (sensor-default) orientation,
-     * not to whatever orientation the screen is currently showing. Without this
-     * remap step the reading is only correct in that one natural orientation --
-     * on phones held/rotated differently, and especially on tablets (whose
-     * natural orientation is landscape), this shows up as a fixed 90/180/270°
-     * offset, which is why facing true north could never read close to 0°.
-     */
     private fun publishAzimuth(matrix: FloatArray, accuracyDegrees: Float?) {
-        val (axisX, axisY) = when (currentRotation()) {
+        // Get the current display rotation
+        val rotation = currentRotation()
+
+        // Remap the coordinate system based on the device's current orientation
+        // This ensures the compass works correctly in both portrait and landscape
+        val (axisX, axisY) = when (rotation) {
+            Surface.ROTATION_0 -> SensorManager.AXIS_X to SensorManager.AXIS_Y
             Surface.ROTATION_90 -> SensorManager.AXIS_Y to SensorManager.AXIS_MINUS_X
             Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_X to SensorManager.AXIS_MINUS_Y
             Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Y to SensorManager.AXIS_X
             else -> SensorManager.AXIS_X to SensorManager.AXIS_Y
         }
+
         SensorManager.remapCoordinateSystem(matrix, axisX, axisY, remappedMatrix)
         SensorManager.getOrientation(remappedMatrix, orientation)
 
-        val rawDegrees = (orientation[0] * 180f / PI.toFloat() + 360f) % 360f
-        onHeadingUpdate(lowPass(rawDegrees), accuracyDegrees, magneticStrengthMicroTesla)
+        // Get the azimuth (heading) from the orientation array
+        // orientation[0] = azimuth (rotation around Z-axis)
+        var rawDegrees = (orientation[0] * 180f / PI.toFloat() + 360f) % 360f
+
+        // Apply low-pass filter to smooth the reading
+        val filteredDegrees = lowPass(rawDegrees)
+
+        onHeadingUpdate(filteredDegrees, accuracyDegrees, magneticStrengthMicroTesla)
     }
 
     /**
-     * Circular low-pass filter so small sensor jitter doesn't make the needle
-     * twitch, while still snapping to a real heading change quickly. Handles
-     * the 0/360° wrap-around correctly.
+     * Circular low-pass filter so small sensor jitter doesn't make the needle twitch
      */
-    private fun lowPass(newDegrees: Float, factor: Float = 0.2f): Float {
+    private fun lowPass(newDegrees: Float, factor: Float = 0.15f): Float {
         val previous = smoothedDegrees ?: run {
             smoothedDegrees = newDegrees
             return newDegrees
         }
-        val delta = (newDegrees - previous + 540f) % 360f - 180f
+        var delta = newDegrees - previous
+        // Handle wrap-around
+        if (delta > 180f) delta -= 360f
+        if (delta < -180f) delta += 360f
         val result = (previous + factor * delta + 360f) % 360f
         smoothedDegrees = result
         return result
     }
 
-    /** values[4] carries estimated heading accuracy (radians) on devices that report it. */
     private fun accuracyDegrees(values: FloatArray): Float? =
         if (values.size >= 5) values[4] * 180f / PI.toFloat() else null
 
@@ -135,7 +136,7 @@ actual class PlatformHeadingProvider actual constructor(
             return
         }
 
-        // Fallback for the rare device without a rotation-vector sensor.
+        // Fallback for devices without rotation vector sensor
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
