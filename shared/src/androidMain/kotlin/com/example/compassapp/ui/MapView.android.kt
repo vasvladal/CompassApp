@@ -2,12 +2,11 @@ package com.example.compassapp.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.os.Handler
-import android.os.Looper
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -28,29 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 
-private const val RED_PIN_JS = """
-(function() {
-    var redPin = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='44' viewBox='0 0 32 44'%3E%3Cpath d='M16 0C7.2 0 0 7.2 0 16c0 12 16 28 16 28s16-16 16-28C32 7.2 24.8 0 16 0z' fill='%23FF0000' stroke='%23FFFFFF' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23FFFFFF'/%3E%3C/svg%3E";
-    function replace() {
-        var imgs = document.querySelectorAll('.leaflet-marker-pane img, .leaflet-marker-icon');
-        for (var i = 0; i < imgs.length; i++) {
-            if (imgs[i].src !== redPin) {
-                imgs[i].src = redPin;
-                imgs[i].style.width = '32px';
-                imgs[i].style.height = '44px';
-                imgs[i].style.marginLeft = '-16px';
-                imgs[i].style.marginTop = '-44px';
-            }
-        }
-        var shadows = document.querySelectorAll('.leaflet-marker-shadow, .leaflet-shadow-pane img');
-        for (var j = 0; j < shadows.length; j++) {
-            shadows[j].style.display = 'none';
-        }
-    }
-    replace();
-    setInterval(replace, 300);
-})()
-"""
+private const val BROWSER_USER_AGENT =
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -59,7 +38,7 @@ actual fun MapView(
     longitude: Double,
     modifier: Modifier
 ) {
-    val url = remember(latitude, longitude) { buildOsmEmbedUrl(latitude, longitude) }
+    val html = remember(latitude, longitude) { buildMapHtml(latitude, longitude) }
     var isLoading by remember { mutableStateOf(true) }
     var hasError by remember { mutableStateOf(false) }
 
@@ -72,10 +51,18 @@ actual fun MapView(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
+
+                    // FIX "access blocked": pretend to be a real browser
+                    settings.userAgentString = BROWSER_USER_AGENT
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
                     settings.loadWithOverviewMode = true
                     settings.useWideViewPort = true
+                    settings.allowFileAccess = true
+                    settings.allowContentAccess = true
+                    settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+
+                    // ENABLE zoom / pan again
                     settings.setSupportZoom(true)
                     settings.builtInZoomControls = true
                     settings.displayZoomControls = false
@@ -84,20 +71,10 @@ actual fun MapView(
                         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                             isLoading = true
                         }
-
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
                             isLoading = false
-
-                            // NO "javascript:" prefix — evaluateJavascript takes raw JS
-                            view?.evaluateJavascript(RED_PIN_JS, null)
-
-                            // Retry after delay in case Leaflet loads marker later
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                view?.evaluateJavascript(RED_PIN_JS, null)
-                            }, 2000)
                         }
-
                         override fun onReceivedError(
                             view: WebView?,
                             request: WebResourceRequest?,
@@ -112,14 +89,27 @@ actual fun MapView(
 
                     webChromeClient = WebChromeClient()
                     setBackgroundColor(0xFF1A1A2E.toInt())
-                    loadUrl(url)
+
+                    loadDataWithBaseURL(
+                        "https://www.openstreetmap.org/",
+                        html,
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
                 }
             },
             update = { webView ->
-                if (webView.url != url) {
+                if (webView.url == null || webView.url == "about:blank") {
                     isLoading = true
                     hasError = false
-                    webView.loadUrl(url)
+                    webView.loadDataWithBaseURL(
+                        "https://www.openstreetmap.org/",
+                        html,
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
                 }
             }
         )

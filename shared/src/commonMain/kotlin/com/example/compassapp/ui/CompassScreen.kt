@@ -144,7 +144,11 @@ private fun CompassScreen(repository: CompassRepository) {
                 val lat = location!!.coordinates.latitude; val lon = location!!.coordinates.longitude
                 val (latDeg, latMin, latSec) = decimalToDMS(lat); val (lonDeg, lonMin, lonSec) = decimalToDMS(lon)
                 val latDir = if (lat >= 0) "N" else "S"; val lonDir = if (lon >= 0) "E" else "W"
-                val altitude = location!!.mslAltitude; val accuracy = location!!.accuracy; val speed = location!!.speed
+
+                // FIX: Use extractDouble() to safely handle wrapper objects like Altitude
+                val altitude = location!!.mslAltitude.extractDouble()
+                val accuracy = location!!.accuracy.extractDouble()
+                val speed = location!!.speed.extractDouble()
 
                 Column(modifier = Modifier.padding(vertical = 8.dp).background(DarkGray.copy(alpha = 0.3f)).padding(12.dp).clip(RoundedCornerShape(8.dp)), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "📍 Location Details", color = Purple, fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -155,9 +159,12 @@ private fun CompassScreen(repository: CompassRepository) {
                     Text(text = "Longitude: ${formatDMS(lonDeg, lonMin, lonSec)} $lonDir", color = White, fontSize = 13.sp)
                     Text(text = "          ${abs(lon)}° (decimal)", color = LightGray, fontSize = 11.sp)
                     Spacer(Modifier.height(4.dp))
-                    if (altitude != null) Text(text = "Altitude: ${(altitude as Double).roundTo(1)} m", color = LightGray, fontSize = 12.sp)
-                    if (accuracy != null) Text(text = "Accuracy: ±${(accuracy as Double).roundTo(1)} m", color = LightGray, fontSize = 12.sp)
-                    if (speed != null) Text(text = "Speed: ${(speed as Double * 3.6).roundTo(1)} km/h", color = LightGray, fontSize = 12.sp)
+
+                    // FIX: Removed "(... as Double)" since extractDouble() already returns Double?
+                    if (altitude != null) Text(text = "Altitude: ${altitude.roundTo(1)} m", color = LightGray, fontSize = 12.sp)
+                    if (accuracy != null) Text(text = "Accuracy: ±${accuracy.roundTo(1)} m", color = LightGray, fontSize = 12.sp)
+                    if (speed != null) Text(text = "Speed: ${(speed * 3.6).roundTo(1)} km/h", color = LightGray, fontSize = 12.sp)
+
                     Button(onClick = { repository.refreshLocation() }, modifier = Modifier.padding(top = 4.dp)) { Text("Refresh Location", fontSize = 12.sp) }
                     Button(onClick = { showMap = true }, modifier = Modifier.padding(top = 4.dp)) { Text("Show Map", fontSize = 12.sp) }
                 }
@@ -236,6 +243,22 @@ private fun CompassScreen(repository: CompassRepository) {
             }
         }
     }
+}
+
+/**
+ * Safely extracts a Double from a property that might be a raw Double,
+ * a Number, or a wrapper object (like dev.jordond.compass.Altitude).
+ */
+private fun Any?.extractDouble(): Double? {
+    if (this == null) return null
+    if (this is Double) return this
+    if (this is Number) return this.toDouble()
+    val str = this.toString()
+    str.toDoubleOrNull()?.let { return it }
+    // Fallback for data classes like "Altitude(meters=123.45)" or "Speed(value=10.0)"
+    val regex = """[=:]\s*(-?\d+(?:\.\d+)?)""".toRegex()
+    val match = regex.find(str)
+    return match?.groupValues?.get(1)?.toDoubleOrNull()
 }
 
 @Composable

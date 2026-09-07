@@ -20,12 +20,15 @@ import androidx.compose.ui.unit.sp
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSURL
-import platform.Foundation.NSURLRequest
 import platform.WebKit.WKWebView
 import platform.WebKit.WKWebViewConfiguration
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKNavigation
 import platform.darwin.NSObject
+
+private const val BROWSER_USER_AGENT =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) " +
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -34,19 +37,18 @@ actual fun MapView(
     longitude: Double,
     modifier: Modifier
 ) {
-    val url = remember(latitude, longitude) { buildOsmEmbedUrl(latitude, longitude) }
+    val html = remember(latitude, longitude) { buildMapHtml(latitude, longitude) }
     var isLoading by remember { mutableStateOf(true) }
-
-    // Delegate to inject CSS once the map DOM is ready
-    val delegate = remember {
-        MapNavigationDelegate { isLoading = false }
-    }
+    val delegate = remember { MapNavDelegate { isLoading = false } }
 
     Box(modifier = modifier) {
         UIKitView(
             modifier = Modifier.matchParentSize(),
             factory = {
                 val config = WKWebViewConfiguration()
+                // FIX "access blocked": pretend to be a real browser
+                config.applicationNameForUserAgent = BROWSER_USER_AGENT
+
                 val webView = WKWebView(
                     frame = CGRectMake(0.0, 0.0, 0.0, 0.0),
                     configuration = config
@@ -54,18 +56,20 @@ actual fun MapView(
                 webView.setOpaque(false)
                 webView.navigationDelegate = delegate
 
-                val nsUrl = NSURL(string = url)
-                val request = NSURLRequest(uRL = nsUrl)
-                webView.loadRequest(request)
+                webView.loadHTMLString(
+                    html,
+                    baseURL = NSURL(string = "https://www.openstreetmap.org/")
+                )
                 webView
             },
             update = { webView ->
                 val currentUrl = webView.URL?.absoluteString
-                if (currentUrl != url) {
+                if (currentUrl == null || currentUrl == "about:blank") {
                     isLoading = true
-                    val nsUrl = NSURL(string = url)
-                    val request = NSURLRequest(uRL = nsUrl)
-                    webView.loadRequest(request)
+                    webView.loadHTMLString(
+                        html,
+                        baseURL = NSURL(string = "https://www.openstreetmap.org/")
+                    )
                 }
             }
         )
@@ -89,18 +93,10 @@ actual fun MapView(
     }
 }
 
-private class MapNavigationDelegate(
-    private val onFinished: () -> Unit
+private class MapNavDelegate(
+    private val onDone: () -> Unit
 ) : NSObject(), WKNavigationDelegateProtocol {
     override fun webView(webView: WKWebView, didFinishNavigation: WKNavigation?) {
-        onFinished()
-
-        // Inject CSS to recolor the default blue marker to glowing pink/red
-        val jsSource = """
-            var style = document.createElement('style');
-            style.innerHTML = '.leaflet-marker-icon { filter: hue-rotate(140deg) saturate(5) brightness(1.2) drop-shadow(0 0 5px white) drop-shadow(0 0 10px #FF1744) !important; z-index: 9999 !important; } .leaflet-marker-shadow { display: none !important; }';
-            document.head.appendChild(style);
-        """.trimIndent()
-        webView.evaluateJavaScript(jsSource, null)
+        onDone()
     }
 }

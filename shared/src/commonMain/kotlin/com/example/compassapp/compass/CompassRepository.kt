@@ -76,7 +76,17 @@ class CompassRepository {
     fun startHeadingUpdates() {
         if (headingProvider != null) return
         val provider = PlatformHeadingProvider { degrees, accuracy, strength, pitch, roll ->
-            _heading.value = HeadingData.fromDegrees(degrees, accuracy, strength)
+
+            // FIX: Calculate magnetic declination if we have a GPS lock
+            val declination = _location.value?.let { loc ->
+                // We pass 0f for altitude to safely bypass any Altitude wrapper object crashes
+                getMagneticDeclination(loc.coordinates.latitude, loc.coordinates.longitude, 0f)
+            } ?: 0f
+
+            // Apply declination to convert Magnetic North -> True North
+            val trueDegrees = (degrees + declination + 360f) % 360f
+
+            _heading.value = HeadingData.fromDegrees(trueDegrees, accuracy, strength)
             _headingError.value = null
             _pitch.value = pitch
             _roll.value = roll

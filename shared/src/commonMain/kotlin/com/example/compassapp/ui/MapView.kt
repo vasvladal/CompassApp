@@ -58,11 +58,16 @@ fun CoordinatesDisplay(
 }
 
 private fun decimalToDms(value: Double): Triple<Int, Int, Double> {
-    val degrees = value.toInt()
-    val minutesDecimal = abs((value - degrees) * 60)
-    val minutes = minutesDecimal.toInt()
-    val seconds = (minutesDecimal - minutes) * 60
-    return Triple(abs(degrees), minutes, seconds)
+    val totalSeconds = abs(value) * 3600.0
+    var degrees = (totalSeconds / 3600.0).toInt()
+    var minutes = ((totalSeconds - degrees * 3600.0) / 60.0).toInt()
+    var seconds = (totalSeconds - degrees * 3600.0 - minutes * 60.0).roundTo(2)
+
+    // Carry-over when rounding pushes seconds to 60
+    if (seconds >= 60.0) { seconds -= 60.0; minutes += 1 }
+    if (minutes >= 60)   { minutes -= 60; degrees += 1 }
+
+    return Triple(degrees, minutes, seconds)
 }
 
 private fun formatDms(degrees: Int, minutes: Int, seconds: Double): String {
