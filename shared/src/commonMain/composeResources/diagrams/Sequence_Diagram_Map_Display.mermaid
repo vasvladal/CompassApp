@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor User
+    participant CompassScreen
+    participant MapView
+    participant WebView as WebView (Android)
+    participant WKWebView as WKWebView (iOS)
+    participant LeafletJS
+    
+    User->>CompassScreen: Click "Show Map"
+    CompassScreen->>CompassScreen: showMap = true
+    
+    alt Android
+        CompassScreen->>MapView: MapView(latitude, longitude)
+        MapView->>MapView: buildMapHtml(lat, lon)
+        MapView->>WebView: loadDataWithBaseURL(html)
+        WebView->>LeafletJS: Load Leaflet libraries
+        LeafletJS->>LeafletJS: Initialize map with coordinates
+        LeafletJS->>LeafletJS: Add tile layers (OSM, OpenTopoMap, HOT)
+        LeafletJS->>LeafletJS: Add marker at location
+        LeafletJS-->>WebView: Render map
+        WebView-->>MapView: Page loaded
+    else iOS
+        CompassScreen->>MapView: MapView(latitude, longitude)
+        MapView->>MapView: buildMapHtml(lat, lon)
+        MapView->>WKWebView: loadHTMLString(html, baseURL)
+        WKWebView->>LeafletJS: Load Leaflet libraries
+        LeafletJS->>LeafletJS: Initialize map with coordinates
+        LeafletJS->>LeafletJS: Add tile layers (OSM, OpenTopoMap, HOT)
+        LeafletJS->>LeafletJS: Add marker at location
+        LeafletJS-->>WKWebView: Render map
+        WKWebView-->>MapView: Page loaded (didFinishNavigation)
+    end
+    
+    MapView-->>CompassScreen: Map displayed
+    CompassScreen-->>User: Show map with coordinates

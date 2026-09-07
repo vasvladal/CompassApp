@@ -1,0 +1,231 @@
+classDiagram
+    %% Core Data Classes
+    class HeadingData {
+        +Float degrees
+        +String cardinalDirection
+        +Float? accuracyDegrees
+        +Float? magneticStrengthMicroTesla
+        +formatDegrees(): String
+        +fromDegrees(degrees: Float, accuracyDegrees: Float?, magneticStrengthMicroTesla: Float?): HeadingData$
+    }
+    
+    class Location {
+        +Coordinates coordinates
+        +Altitude? mslAltitude
+        +Accuracy? accuracy
+        +Speed? speed
+    }
+    
+    class Coordinates {
+        +Double latitude
+        +Double longitude
+    }
+    
+    %% Repository
+    class CompassRepository {
+        -CoroutineScope scope
+        -Geolocator geolocator
+        -Geocoder geocoder
+        -MutableStateFlow~Location?~ _location
+        -MutableStateFlow~String?~ _locationError
+        -MutableStateFlow~String?~ _placeName
+        -MutableStateFlow~HeadingData?~ _heading
+        -MutableStateFlow~String?~ _headingError
+        -MutableStateFlow~Float~ _pitch
+        -MutableStateFlow~Float~ _roll
+        -Job? trackingJob
+        -Job? trackingControlJob
+        -PlatformHeadingProvider? headingProvider
+        +StateFlow~Location?~ location
+        +StateFlow~String?~ locationError
+        +StateFlow~String?~ placeName
+        +StateFlow~HeadingData?~ heading
+        +StateFlow~String?~ headingError
+        +StateFlow~Float~ pitch
+        +StateFlow~Float~ roll
+        +startLocationTracking()
+        +stopLocationTracking()
+        +refreshLocation()
+        +startHeadingUpdates()
+        +stopHeadingUpdates()
+        +startAll()
+        +stopAll()
+        -reverseGeocode(location: Location)
+    }
+    
+    %% Platform Heading Providers
+    class PlatformHeadingProvider {
+        <<expect>>
+        +onHeadingUpdate: (Float, Float?, Float?, Float, Float) -> Unit
+        +start(onError: (String) -> Unit)
+        +stop()
+    }
+    
+    class PlatformHeadingProviderAndroid {
+        <<actual>>
+        -SensorManager sensorManager
+        -WindowManager windowManager
+        -FloatArray gravity
+        -FloatArray geomagnetic
+        -Boolean hasGravity
+        -Boolean hasGeomagnetic
+        -FloatArray rotationMatrix
+        -FloatArray remappedMatrix
+        -FloatArray orientation
+        -Boolean isRunning
+        -Boolean usingRotationVector
+        -Float? smoothedDegrees
+        -Float? magneticStrengthMicroTesla
+        -SensorEventListener listener
+        +start(onError: (String) -> Unit)
+        +stop()
+        -publishFromAccelMag()
+        -publishAzimuth(matrix: FloatArray, accuracyDegrees: Float?)
+        -lowPass(newDegrees: Float, factor: Float): Float
+        -accuracyDegrees(values: FloatArray): Float?
+        -currentRotation(): Int
+    }
+    
+    class PlatformHeadingProviderIOS {
+        <<actual>>
+        -CLLocationManager locationManager
+        -HeadingDelegate? delegate
+        -Boolean isRunning
+        -CMMotionManager motionManager
+        -Float latestPitch
+        -Float latestRoll
+        -Float? lastHeading
+        -Float? lastAccuracy
+        +start(onError: (String) -> Unit)
+        +stop()
+        +updateHeading(heading: Float, accuracy: Float?)
+    }
+    
+    class HeadingDelegate {
+        <<iOS>>
+        -PlatformHeadingProvider provider
+        +locationManager(manager: CLLocationManager, didUpdateHeading: CLHeading)
+        +locationManager(manager: CLLocationManager, didFailWithError: NSError)
+    }
+    
+    %% Android Context
+    class AndroidContextHolder {
+        <<object>>
+        -Context appContext
+        +init(context: Context)
+    }
+    
+    class CompassContextInitializer {
+        +create(context: Context): Unit
+        +dependencies(): List~Class~out Initializer~~~$
+    }
+    
+    %% UI Components
+    class CompassApp {
+        +Composable
+        +repository: CompassRepository
+    }
+    
+    class CompassScreen {
+        +Composable
+        -location: Location?
+        -locationError: String?
+        -placeName: String?
+        -heading: HeadingData?
+        -headingError: String?
+        -pitch: Float
+        -roll: Float
+        -showLocationDetails: Boolean
+        -showCalibration: Boolean
+        -showMap: Boolean
+    }
+    
+    class CircularCompass {
+        +Composable
+        -heading: HeadingData?
+        -pitch: Float
+        -roll: Float
+    }
+    
+    class MapView {
+        <<expect>>
+        +Composable
+        +latitude: Double
+        +longitude: Double
+    }
+    
+    class MapViewAndroid {
+        <<actual>>
+        +Composable
+        -htmlContent: String
+        +AndroidView with WebView
+    }
+    
+    class MapViewIOS {
+        <<actual>>
+        +Composable
+        -htmlContent: String
+        +UIKitView with WKWebView
+    }
+    
+    class CoordinatesDisplay {
+        +Composable
+        +latitude: Double
+        +longitude: Double
+    }
+    
+    class OsmHtml {
+        +buildMapHtml(latitude: Double, longitude: Double, zoom: Int): String$
+    }
+    
+    %% Magnetic Declination
+    class MagneticDeclination {
+        <<expect>>
+        +getMagneticDeclination(latitude: Double, longitude: Double, altitude: Float): Float$
+    }
+    
+    class MagneticDeclinationAndroid {
+        <<actual>>
+        +getMagneticDeclination(latitude: Double, longitude: Double, altitude: Float): Float$
+    }
+    
+    class MagneticDeclinationIOS {
+        <<actual>>
+        +getMagneticDeclination(latitude: Double, longitude: Double, altitude: Float): Float$
+    }
+    
+    %% MainActivity
+    class MainActivity {
+        +onCreate(savedInstanceState: Bundle?)
+    }
+    
+    %% Relationships
+    CompassApp --> CompassScreen
+    CompassScreen --> CompassRepository : uses
+    CompassScreen --> CircularCompass : contains
+    CompassScreen --> MapView : contains
+    CompassScreen --> CoordinatesDisplay : contains
+    
+    CompassRepository --> PlatformHeadingProvider : creates
+    CompassRepository --> HeadingData : uses
+    CompassRepository --> Location : uses
+    CompassRepository --> MagneticDeclination : uses
+    
+    PlatformHeadingProviderAndroid --|> PlatformHeadingProvider : implements
+    PlatformHeadingProviderIOS --|> PlatformHeadingProvider : implements
+    
+    PlatformHeadingProviderIOS --> HeadingDelegate : creates
+    
+    MapViewAndroid --|> MapView : implements
+    MapViewIOS --|> MapView : implements
+    
+    MapViewAndroid --> OsmHtml : uses
+    MapViewIOS --> OsmHtml : uses
+    
+    CompassContextInitializer --> AndroidContextHolder : initializes
+    PlatformHeadingProviderAndroid --> AndroidContextHolder : uses
+    
+    MagneticDeclinationAndroid --|> MagneticDeclination : implements
+    MagneticDeclinationIOS --|> MagneticDeclination : implements
+    
+    MainActivity --> CompassApp : contains

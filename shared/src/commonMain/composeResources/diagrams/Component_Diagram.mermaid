@@ -1,0 +1,70 @@
+graph TB
+    subgraph "Presentation Layer"
+        CompassApp[CompassApp Composable]
+        CompassScreen[CompassScreen Composable]
+        CircularCompass[CircularCompass Composable]
+        MapView[MapView Composable]
+        CoordinatesDisplay[CoordinatesDisplay Composable]
+    end
+    
+    subgraph "Domain Layer"
+        CompassRepository[CompassRepository]
+        HeadingData[HeadingData]
+        MagneticDeclination[MagneticDeclination]
+    end
+    
+    subgraph "Platform Layer - Android"
+        PlatformHeadingProviderAndroid[PlatformHeadingProvider Android]
+        AndroidContextHolder[AndroidContextHolder]
+        MagneticDeclinationAndroid[MagneticDeclination Android]
+        MapViewAndroid[MapView Android]
+        WebView[WebView with Leaflet]
+    end
+    
+    subgraph "Platform Layer - iOS"
+        PlatformHeadingProviderIOS[PlatformHeadingProvider iOS]
+        MagneticDeclinationIOS[MagneticDeclination iOS]
+        MapViewIOS[MapView iOS]
+        WKWebView[WKWebView with Leaflet]
+        HeadingDelegate[HeadingDelegate]
+    end
+    
+    subgraph "External Services"
+        OSM[OpenStreetMap Tiles]
+        GPS[GPS/GLONASS]
+        SensorHardware[Device Sensors<br/>Magnetometer, Accelerometer]
+        GeolocationAPI[Geolocation API]
+    end
+    
+    CompassApp --> CompassScreen
+    CompassScreen --> CircularCompass
+    CompassScreen --> MapView
+    CompassScreen --> CoordinatesDisplay
+    CompassScreen --> CompassRepository
+    
+    CompassRepository --> HeadingData
+    CompassRepository --> MagneticDeclination
+    CompassRepository --> PlatformHeadingProviderAndroid
+    CompassRepository --> PlatformHeadingProviderIOS
+    
+    PlatformHeadingProviderAndroid --> AndroidContextHolder
+    PlatformHeadingProviderAndroid --> SensorHardware
+    PlatformHeadingProviderIOS --> HeadingDelegate
+    
+    MapView --> MapViewAndroid
+    MapView --> MapViewIOS
+    MapViewAndroid --> WebView
+    MapViewIOS --> WKWebView
+    WebView --> OSM
+    WKWebView --> OSM
+    
+    CompassRepository --> GeolocationAPI
+    CompassRepository --> GPS
+    MagneticDeclinationAndroid --> GPS
+    MagneticDeclinationIOS --> GPS
+    
+    style Presentation Layer fill:#1a1a2e
+    style Domain Layer fill:#2a1a3e
+    style Platform Layer - Android fill:#1a2e1a
+    style Platform Layer - iOS fill:#1a2e3e
+    style External Services fill:#2e2e1a

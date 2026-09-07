@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    participant SensorManager as Sensor/System
+    participant MagneticDeclination
+    participant CompassScreen
+    participant User
+    
+    loop Every sensor update
+        SensorManager->>PlatformHeadingProvider: Sensor data
+        PlatformHeadingProvider->>PlatformHeadingProvider: Calculate raw degrees
+        PlatformHeadingProvider->>PlatformHeadingProvider: Low-pass filter
+        PlatformHeadingProvider->>PlatformHeadingProvider: Extract pitch & roll
+        
+        PlatformHeadingProvider->>CompassRepository: onHeadingUpdate(degrees, accuracy, strength, pitch, roll)
+        
+        CompassRepository->>CompassRepository: Check if location available
+        alt Location available
+            CompassRepository->>MagneticDeclination: getMagneticDeclination(lat, lon, 0f)
+            
+            alt Android
+                MagneticDeclination->>MagneticDeclination: GeomagneticField(lat, lon, alt, time)
+                MagneticDeclination-->>CompassRepository: declination
+            else iOS
+                MagneticDeclination-->>CompassRepository: 0f (trueHeading already provided)
+            end
+        else No location
+            CompassRepository->>CompassRepository: declination = 0f
+        end
+        
+        CompassRepository->>CompassRepository: trueDegrees = (degrees + declination + 360) % 360
+        CompassRepository->>CompassRepository: HeadingData.fromDegrees(trueDegrees)
+        CompassRepository->>CompassScreen: Update heading StateFlow
+        
+        CompassScreen->>CompassScreen: Animate compass to new heading
+        CompassScreen-->>User: Display updated heading
+    end

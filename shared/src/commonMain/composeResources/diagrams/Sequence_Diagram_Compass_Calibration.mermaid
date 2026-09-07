@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor User
+    participant CompassScreen
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    
+    User->>CompassScreen: Click "Calibrate Compass"
+    CompassScreen->>CompassScreen: showCalibration = true
+    CompassScreen-->>User: Show calibration overlay with instructions
+    
+    loop While calibrating
+        CompassRepository->>PlatformHeadingProvider: onHeadingUpdate(degrees)
+        PlatformHeadingProvider-->>CompassScreen: Heading update
+        CompassScreen->>CompassScreen: Calculate rotation delta
+        CompassScreen->>CompassScreen: totalRotation += abs(delta)
+        CompassScreen->>CompassScreen: calibrationProgress = totalRotation / 720f
+        CompassScreen-->>User: Update progress bar
+        
+        alt calibrationProgress >= 1.0f
+            CompassScreen->>CompassScreen: showCalibration = false
+            CompassScreen-->>User: Calibration complete
+        end
+    end
+    
+    User->>CompassScreen: Click "Cancel"
+    CompassScreen->>CompassScreen: showCalibration = false

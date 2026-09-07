@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CompassApp — Architecture Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a14;
+            color: #f0edf5;
+            padding: 24px 16px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #12121f;
+            border-radius: 24px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #2a2a42;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #d0b7ff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .subtitle {
+            color: #9a8ab8;
+            font-size: 15px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a2a42;
+            padding-bottom: 16px;
+        }
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #d0b7ff;
+            margin: 32px 0 16px 0;
+            border-left: 4px solid #d0b7ff;
+            padding-left: 14px;
+        }
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #bfaae6;
+            margin: 24px 0 10px 0;
+        }
+        p {
+            color: #cfc8df;
+            margin-bottom: 12px;
+        }
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+        li {
+            color: #cfc8df;
+            margin-bottom: 6px;
+        }
+        .diagram-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0 28px 0;
+            border: 1px solid #2a2a48;
+            overflow-x: auto;
+        }
+        .diagram-container .diagram-title {
+            color: #9a8ab8;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        .mermaid {
+            background: #0d0d1a;
+            padding: 8px;
+            min-height: 100px;
+        }
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0 20px 0;
+        }
+        .feature-card {
+            background: #1a1a2e;
+            border-radius: 14px;
+            padding: 16px 18px;
+            border-left: 4px solid #d0b7ff;
+        }
+        .feature-card .icon {
+            font-size: 22px;
+            margin-right: 8px;
+        }
+        .feature-card .title {
+            font-weight: 600;
+            color: #f0edf5;
+            font-size: 15px;
+        }
+        .feature-card .desc {
+            color: #a89fc0;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+        .badge {
+            display: inline-block;
+            background: #d0b7ff22;
+            color: #d0b7ff;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #d0b7ff33;
+            margin-right: 6px;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 12px 0;
+        }
+        .tech-tag {
+            background: #1f1f3a;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #b5a8d4;
+            border: 1px solid #33335a;
+        }
+        .code-block {
+            background: #0d0d1a;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #c8c0e0;
+            border: 1px solid #2a2a48;
+            overflow-x: auto;
+            margin: 12px 0 16px 0;
+        }
+        .code-block .comment {
+            color: #6a6a8a;
+        }
+        .code-block .keyword {
+            color: #d0b7ff;
+        }
+        .code-block .string {
+            color: #b5d6a8;
+        }
+        .section-divider {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #2a2a42, transparent);
+            margin: 32px 0;
+        }
+        .footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #2a2a42;
+            font-size: 13px;
+            color: #7a7298;
+            text-align: center;
+        }
+        .footer a {
+            color: #b5a8d4;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: #d0b7ff;
+            text-decoration: underline;
+        }
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 820px) {
+            .container { padding: 20px 16px; }
+            h1 { font-size: 24px; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .diagram-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>
+            <span>🧭</span> CompassApp
+        </h1>
+        <div class="subtitle">
+            Architecture Documentation · Kotlin Multiplatform · Compose Multiplatform
+        </div>
+
+        <p>
+            <strong>CompassApp</strong> is a cross-platform compass and navigation tool
+            built with <strong>Kotlin Multiplatform</strong> and <strong>Compose Multiplatform</strong>.
+            It runs on <strong>Android</strong> and <strong>iOS</strong> from a single codebase,
+            showing true heading (corrected for magnetic declination), GPS coordinates,
+            and interactive maps using free OpenStreetMap tiles.
+        </p>
+
+        <hr class="section-divider" />
+
+        <h2>✨ Features</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div><span class="icon">🧭</span><span class="title">True Heading</span></div>
+                <div class="desc">Displays direction in degrees and cardinal points. Automatically corrected for magnetic declination.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📍</span><span class="title">GPS Location</span></div>
+                <div class="desc">Shows latitude/longitude in decimal and DMS formats. Includes altitude, accuracy, and speed.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">🗺️</span><span class="title">Interactive Map</span></div>
+                <div class="desc">OpenStreetMap view with marker at your location — no API key required.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📐</span><span class="title">Level &amp; Tilt</span></div>
+                <div class="desc">Visual bubble level shows device pitch and roll for accurate readings.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">🔄</span><span class="title">Compass Calibration</span></div>
+                <div class="desc">On-screen guide: rotate device in a figure-8 motion to improve accuracy.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📊</span><span class="title">Magnetic Strength</span></div>
+                <div class="desc">Displays local magnetic field strength in microteslas (μT).</div>
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>📐 Class Diagram</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">🧩 CompassApp Class Structure</div>
+            <div class="mermaid">
+classDiagram
+    class HeadingData {
+        +Float degrees
+        +String cardinalDirection
+        +Float? accuracyDegrees
+        +Float? magneticStrengthMicroTesla
+        +formatDegrees() String
+        +fromDegrees(degrees, accuracy, strength) HeadingData$
+    }
+    
+    class Location {
+        +Coordinates coordinates
+        +Altitude? mslAltitude
+        +Accuracy? accuracy
+        +Speed? speed
+    }
+    
+    class Coordinates {
+        +Double latitude
+        +Double longitude
+    }
+    
+    class CompassRepository {
+        -CoroutineScope scope
+        -Geolocator geolocator
+        -Geocoder geocoder
+        -MutableStateFlow~Location~ _location
+        -MutableStateFlow~String~ _locationError
+        -MutableStateFlow~String~ _placeName
+        -MutableStateFlow~HeadingData~ _heading
+        -MutableStateFlow~String~ _headingError
+        -MutableStateFlow~Float~ _pitch
+        -MutableStateFlow~Float~ _roll
+        -Job? trackingJob
+        -PlatformHeadingProvider? headingProvider
+        +StateFlow~Location~ location
+        +StateFlow~HeadingData~ heading
+        +startAll()
+        +stopAll()
+        +refreshLocation()
+    }
+    
+    class PlatformHeadingProvider {
+        &lt;&lt;expect&gt;&gt;
+        +onHeadingUpdate: Function
+        +start(onError: Function)
+        +stop()
+    }
+    
+    class PlatformHeadingProviderAndroid {
+        &lt;&lt;actual&gt;&gt;
+        -SensorManager sensorManager
+        -FloatArray gravity
+        -FloatArray geomagnetic
+        -Boolean hasGravity
+        -Boolean hasGeomagnetic
+        -SensorEventListener listener
+        +start()
+        +stop()
+        -publishAzimuth()
+        -lowPass() Float
+    }
+    
+    class PlatformHeadingProviderIOS {
+        &lt;&lt;actual&gt;&gt;
+        -CLLocationManager locationManager
+        -CMMotionManager motionManager
+        -Float latestPitch
+        -Float latestRoll
+        +start()
+        +stop()
+        +updateHeading()
+    }
+    
+    class HeadingDelegate {
+        -PlatformHeadingProvider provider
+        +locationManager(manager, didUpdateHeading)
+        +locationManager(manager, didFailWithError)
+    }
+    
+    class MagneticDeclination {
+        &lt;&lt;expect&gt;&gt;
+        +getMagneticDeclination(lat, lon, alt) Float$
+    }
+    
+    class MagneticDeclinationAndroid {
+        &lt;&lt;actual&gt;&gt;
+        +getMagneticDeclination(lat, lon, alt) Float$
+    }
+    
+    class MagneticDeclinationIOS {
+        &lt;&lt;actual&gt;&gt;
+        +getMagneticDeclination(lat, lon, alt) Float$
+    }
+    
+    class CompassScreen {
+        &lt;&lt;Composable&gt;&gt;
+        -showLocationDetails: Boolean
+        -showCalibration: Boolean
+        -showMap: Boolean
+    }
+    
+    class CircularCompass {
+        &lt;&lt;Composable&gt;&gt;
+        -heading: HeadingData?
+        -pitch: Float
+        -roll: Float
+    }
+    
+    class MapView {
+        &lt;&lt;expect Composable&gt;&gt;
+        +latitude: Double
+        +longitude: Double
+    }
+    
+    class MapViewAndroid {
+        &lt;&lt;actual Composable&gt;&gt;
+        +AndroidView: WebView
+    }
+    
+    class MapViewIOS {
+        &lt;&lt;actual Composable&gt;&gt;
+        +UIKitView: WKWebView
+    }
+    
+    class CoordinatesDisplay {
+        &lt;&lt;Composable&gt;&gt;
+        +latitude: Double
+        +longitude: Double
+    }
+    
+    class OsmHtml {
+        +buildMapHtml(lat, lon, zoom) String$
+    }
+    
+    class AndroidContextHolder {
+        &lt;&lt;object&gt;&gt;
+        -Context appContext
+        +init(context)
+    }
+    
+    class CompassContextInitializer {
+        +create(context) Unit
+        +dependencies() List~Class~
+    }
+    
+    class MainActivity {
+        +onCreate(savedInstanceState)
+    }
+    
+    CompassScreen --> CompassRepository : uses
+    CompassScreen --> CircularCompass : contains
+    CompassScreen --> MapView : contains
+    CompassScreen --> CoordinatesDisplay : contains
+    
+    CompassRepository --> PlatformHeadingProvider : creates
+    CompassRepository --> HeadingData : uses
+    CompassRepository --> MagneticDeclination : uses
+    
+    PlatformHeadingProviderAndroid --|> PlatformHeadingProvider : implements
+    PlatformHeadingProviderIOS --|> PlatformHeadingProvider : implements
+    
+    PlatformHeadingProviderIOS --> HeadingDelegate : creates
+    
+    MapViewAndroid --|> MapView : implements
+    MapViewIOS --|> MapView : implements
+    
+    MapViewAndroid --> OsmHtml : uses
+    MapViewIOS --> OsmHtml : uses
+    
+    MagneticDeclinationAndroid --|> MagneticDeclination : implements
+    MagneticDeclinationIOS --|> MagneticDeclination : implements
+    
+    PlatformHeadingProviderAndroid --> AndroidContextHolder : uses
+    CompassContextInitializer --> AndroidContextHolder : initializes
+    
+    MainActivity --> CompassScreen : contains
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🔄 App Startup & Compass Initialization</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">🚀 Sequence: App Launch to Heading Updates</div>
+            <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant MainActivity
+    participant CompassApp
+    participant CompassScreen
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    participant SensorManager
+    participant Geolocator
+    participant Geocoder
+    
+    User->>MainActivity: Launch App
+    MainActivity->>MainActivity: onCreate()
+    MainActivity->>CompassApp: CompassApp()
+    CompassApp->>CompassScreen: CompassScreen(repository)
+    CompassScreen->>CompassRepository: remember { CompassRepository() }
+    
+    CompassScreen->>CompassScreen: DisposableEffect startAll()
+    CompassScreen->>CompassRepository: startAll()
+    
+    par Location Tracking
+        CompassRepository->>Geolocator: track()
+        Geolocator-->>CompassRepository: Location updates
+        CompassRepository->>Geocoder: reverseGeocode(location)
+        Geocoder-->>CompassRepository: Place name
+        CompassRepository-->>CompassScreen: Update location StateFlow
+    and Heading Tracking
+        CompassRepository->>PlatformHeadingProvider: new(callback)
+        CompassRepository->>PlatformHeadingProvider: start()
+        
+        alt Android
+            PlatformHeadingProvider->>SensorManager: registerListener()
+            SensorManager-->>PlatformHeadingProvider: SensorEvent
+            PlatformHeadingProvider->>PlatformHeadingProvider: Calculate heading
+        else iOS
+            PlatformHeadingProvider->>PlatformHeadingProvider: startUpdatingHeading()
+            PlatformHeadingProvider->>PlatformHeadingProvider: Calculate heading
+        end
+        
+        PlatformHeadingProvider-->>CompassRepository: onHeadingUpdate()
+        CompassRepository->>CompassRepository: Apply declination
+        CompassRepository-->>CompassScreen: Update heading StateFlow
+    end
+    
+    CompassScreen-->>User: Display compass UI
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🧭 Heading Update Flow</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">📊 Sequence: Sensor Data to UI Update</div>
+            <div class="mermaid">
+sequenceDiagram
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    participant Sensor
+    participant MagneticDeclination
+    participant CompassScreen
+    participant User
+    
+    loop Every sensor update
+        Sensor->>PlatformHeadingProvider: Sensor data
+        PlatformHeadingProvider->>PlatformHeadingProvider: Calculate raw degrees
+        PlatformHeadingProvider->>PlatformHeadingProvider: Low-pass filter
+        PlatformHeadingProvider->>PlatformHeadingProvider: Extract pitch and roll
+        
+        PlatformHeadingProvider->>CompassRepository: onHeadingUpdate(degrees, accuracy, strength, pitch, roll)
+        
+        alt Location available
+            CompassRepository->>MagneticDeclination: getMagneticDeclination(lat, lon, 0f)
+            
+            alt Android
+                MagneticDeclination->>MagneticDeclination: GeomagneticField()
+                MagneticDeclination-->>CompassRepository: declination
+            else iOS
+                MagneticDeclination-->>CompassRepository: 0f (trueHeading provided)
+            end
+        else No location
+            CompassRepository->>CompassRepository: declination = 0f
+        end
+        
+        CompassRepository->>CompassRepository: trueDegrees = (degrees + declination) mod 360
+        CompassRepository->>CompassRepository: HeadingData.fromDegrees(trueDegrees)
+        CompassRepository-->>CompassScreen: Update heading StateFlow
+        
+        CompassScreen->>CompassScreen: Animate compass to new heading
+        CompassScreen-->>User: Display updated heading
+    end
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🗺️ Map Display Flow</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">🌍 Sequence: Show Map to Render OpenStreetMap</div>
+            <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant CompassScreen
+    participant MapView
+    participant WebView
+    participant WKWebView
+    participant LeafletJS
+    
+    User->>CompassScreen: Click Show Map
+    CompassScreen->>CompassScreen: showMap = true
+    
+    alt Android
+        CompassScreen->>MapView: MapView(latitude, longitude)
+        MapView->>MapView: buildMapHtml(lat, lon)
+        MapView->>WebView: loadDataWithBaseURL(html)
+        WebView->>LeafletJS: Load Leaflet libraries
+        LeafletJS->>LeafletJS: Initialize map with coords
+        LeafletJS->>LeafletJS: Add tile layers
+        LeafletJS->>LeafletJS: Add marker at location
+        LeafletJS-->>WebView: Render map
+        WebView-->>MapView: Page loaded
+    else iOS
+        CompassScreen->>MapView: MapView(latitude, longitude)
+        MapView->>MapView: buildMapHtml(lat, lon)
+        MapView->>WKWebView: loadHTMLString(html, baseURL)
+        WKWebView->>LeafletJS: Load Leaflet libraries
+        LeafletJS->>LeafletJS: Initialize map with coords
+        LeafletJS->>LeafletJS: Add tile layers
+        LeafletJS->>LeafletJS: Add marker
+        LeafletJS-->>WKWebView: Render map
+        WKWebView-->>MapView: Page loaded
+    end
+    
+    MapView-->>CompassScreen: Map displayed
+    CompassScreen-->>User: Show map with coordinates
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🔄 Compass Calibration</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">🎯 Sequence: Calibration Process</div>
+            <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant CompassScreen
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    
+    User->>CompassScreen: Click Calibrate Compass
+    CompassScreen->>CompassScreen: showCalibration = true
+    CompassScreen-->>User: Show calibration overlay
+    
+    loop While calibrating
+        CompassRepository->>PlatformHeadingProvider: onHeadingUpdate(degrees)
+        PlatformHeadingProvider-->>CompassScreen: Heading update
+        CompassScreen->>CompassScreen: Calculate rotation delta
+        CompassScreen->>CompassScreen: totalRotation += abs(delta)
+        CompassScreen->>CompassScreen: progress = totalRotation / 720f
+        CompassScreen-->>User: Update progress bar
+        
+        alt progress >= 1.0f
+            CompassScreen->>CompassScreen: showCalibration = false
+            CompassScreen-->>User: Calibration complete
+        end
+    end
+    
+    User->>CompassScreen: Click Cancel
+    CompassScreen->>CompassScreen: showCalibration = false
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🧩 Component Architecture</h2>
+
+        <div class="diagram-container">
+            <div class="diagram-title">🏗️ System Components and Layers</div>
+            <div class="mermaid">
+graph TB
+    subgraph Presentation["Presentation Layer"]
+        CompassApp["CompassApp Composable"]
+        CompassScreen["CompassScreen Composable"]
+        CircularCompass["CircularCompass Composable"]
+        MapView["MapView Composable"]
+        CoordinatesDisplay["CoordinatesDisplay Composable"]
+    end
+    
+    subgraph Domain["Domain Layer"]
+        CompassRepository["CompassRepository"]
+        HeadingData["HeadingData"]
+        MagneticDeclination["MagneticDeclination"]
+    end
+    
+    subgraph AndroidPlatform["Platform Layer - Android"]
+        PlatformHeadingProviderAndroid["PlatformHeadingProvider Android"]
+        AndroidContextHolder["AndroidContextHolder"]
+        MagneticDeclinationAndroid["MagneticDeclination Android"]
+        MapViewAndroid["MapView Android"]
+        WebView["WebView with Leaflet"]
+    end
+    
+    subgraph iOSPlatform["Platform Layer - iOS"]
+        PlatformHeadingProviderIOS["PlatformHeadingProvider iOS"]
+        MagneticDeclinationIOS["MagneticDeclination iOS"]
+        MapViewIOS["MapView iOS"]
+        WKWebView["WKWebView with Leaflet"]
+        HeadingDelegate["HeadingDelegate"]
+    end
+    
+    subgraph External["External Services"]
+        OSM["OpenStreetMap Tiles"]
+        GPS["GPS/GLONASS"]
+        SensorHardware["Device Sensors"]
+        GeolocationAPI["Geolocation API"]
+    end
+    
+    CompassApp --> CompassScreen
+    CompassScreen --> CircularCompass
+    CompassScreen --> MapView
+    CompassScreen --> CoordinatesDisplay
+    CompassScreen --> CompassRepository
+    
+    CompassRepository --> HeadingData
+    CompassRepository --> MagneticDeclination
+    CompassRepository --> PlatformHeadingProviderAndroid
+    CompassRepository --> PlatformHeadingProviderIOS
+    
+    PlatformHeadingProviderAndroid --> AndroidContextHolder
+    PlatformHeadingProviderAndroid --> SensorHardware
+    PlatformHeadingProviderIOS --> HeadingDelegate
+    
+    MapView --> MapViewAndroid
+    MapView --> MapViewIOS
+    MapViewAndroid --> WebView
+    MapViewIOS --> WKWebView
+    WebView --> OSM
+    WKWebView --> OSM
+    
+    CompassRepository --> GeolocationAPI
+    CompassRepository --> GPS
+    MagneticDeclinationAndroid --> GPS
+    MagneticDeclinationIOS --> GPS
+    
+    style Presentation fill:#1a1a2e,stroke:#2a2a48
+    style Domain fill:#2a1a3e,stroke:#3a2a4e
+    style AndroidPlatform fill:#1a2e1a,stroke:#2a3e2a
+    style iOSPlatform fill:#1a2e3e,stroke:#2a3e4e
+    style External fill:#2e2e1a,stroke:#3e3e2a
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🛠️ Technology Stack</h2>
+
+        <div class="tech-stack">
+            <span class="tech-tag">Kotlin Multiplatform</span>
+            <span class="tech-tag">Compose Multiplatform</span>
+            <span class="tech-tag">Kotlin Coroutines</span>
+            <span class="tech-tag">Kotlin Flow</span>
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">OpenStreetMap</span>
+            <span class="tech-tag">AndroidX Startup</span>
+            <span class="tech-tag">CLLocationManager (iOS)</span>
+            <span class="tech-tag">SensorManager (Android)</span>
+            <span class="tech-tag">GeomagneticField (Android)</span>
+        </div>
+
+        <h3>Key Libraries</h3>
+        <ul>
+            <li><strong>dev.jordond.compass</strong> — Geolocation, geocoding, and location tracking</li>
+            <li><strong>kotlinx.coroutines</strong> — Async operations and reactive flows</li>
+            <li><strong>kotlinx.datetime</strong> — Date/time handling</li>
+            <li><strong>AndroidX Startup</strong> — Context initialization on Android</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <h2>📁 Project Structure</h2>
+
+        <div class="code-block" style="font-size:12px;line-height:1.8;">
+            <span class="comment">// Core modules</span><br />
+            app/                         <span class="comment">// Android app</span><br />
+            iosApp/                      <span class="comment">// iOS app (SwiftUI)</span><br />
+            shared/                      <span class="comment">// Shared Kotlin Multiplatform code</span><br />
+            &nbsp;&nbsp;├── commonMain/    <span class="comment">// Platform-agnostic logic</span><br />
+            &nbsp;&nbsp;│&nbsp;&nbsp;├── compass/   <span class="comment">// Heading, declination, repository</span><br />
+            &nbsp;&nbsp;│&nbsp;&nbsp;└── ui/        <span class="comment">// Compose UI screens</span><br />
+            &nbsp;&nbsp;├── androidMain/   <span class="comment">// Android-specific implementations</span><br />
+            &nbsp;&nbsp;└── iosMain/       <span class="comment">// iOS-specific implementations</span>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🔐 Permissions</h2>
+
+        <p>The app requests the following permissions:</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px 0;">
+            <span class="badge">📍 ACCESS_FINE_LOCATION</span>
+            <span class="badge">📍 ACCESS_COARSE_LOCATION</span>
+            <span class="badge">🌐 INTERNET</span>
+            <span class="badge">📶 ACCESS_NETWORK_STATE</span>
+        </div>
+
+        <p style="margin-top:8px;font-size:14px;color:#a89fc0;">
+            On iOS, <code>NSLocationWhenInUseUsageDescription</code> is used. All permissions are required for core functionality.
+        </p>
+
+        <hr class="section-divider" />
+
+        <h2>📱 Usage Tips</h2>
+
+        <ul>
+            <li><strong>Wait for GPS fix:</strong> The compass works best with GPS lock for declination correction.</li>
+            <li><strong>Hold flat:</strong> Keep your device horizontal for best results. Use the bubble level.</li>
+            <li><strong>Calibrate:</strong> If heading seems off, tap <em>"Calibrate Compass"</em> and move in a figure-8 pattern.</li>
+            <li><strong>View map:</strong> Tap <em>"Show Map"</em> to see your position on OpenStreetMap.</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <h2>🙏 Credits</h2>
+
+        <ul>
+            <li><a href="https://kotlinlang.org/" target="_blank">Kotlin</a> &amp; <a href="https://www.jetbrains.com/compose-multiplatform/" target="_blank">Compose Multiplatform</a> by JetBrains</li>
+            <li><a href="https://github.com/jordond/compass" target="_blank">Compass library</a> by Jordan Demuth</li>
+            <li><a href="https://leafletjs.com/" target="_blank">Leaflet</a> for interactive maps</li>
+            <li><a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> &amp; <a href="https://opentopomap.org/" target="_blank">OpenTopoMap</a> for free map tiles</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <div class="footer">
+            <p>
+                CompassApp — Built with ❤️ using Kotlin Multiplatform &bull; 2026
+            </p>
+            <p style="margin-top:4px;font-size:12px;">
+                📧 <a href="mailto:example@compassapp.dev">example@compassapp.dev</a> &bull;
+                🐦 <a href="#">@compassapp</a> &bull;
+                📂 <a href="#">GitHub</a>
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        mermaid.initialize({
+            theme: 'dark',
+            themeVariables: {
+                background: '#0d0d1a',
+                primaryColor: '#d0b7ff',
+                primaryTextColor: '#f0edf5',
+                primaryBorderColor: '#2a2a48',
+                lineColor: '#6a6a8a',
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#2a1a3e',
+                fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                diagramMarginX: 50,
+                diagramMarginY: 10,
+                actorMargin: 50,
+                width: 150,
+                height: 65,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 35,
+                mirrorActors: false,
+                useMaxWidth: true
+            },
+            class: {
+                hideEmptyMembersBox: false,
+                useMaxWidth: true
+            }
+        });
+    </script>
+
+</body>
+</html>

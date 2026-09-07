@@ -1,0 +1,52 @@
+sequenceDiagram
+    actor User
+    participant MainActivity
+    participant CompassApp
+    participant CompassScreen
+    participant CompassRepository
+    participant PlatformHeadingProvider
+    participant SensorManager as SensorManager (Android)
+    participant CLLocationManager as CLLocationManager (iOS)
+    participant Geolocator
+    participant Geocoder
+    
+    User->>MainActivity: Launch App
+    MainActivity->>MainActivity: onCreate()
+    MainActivity->>MainActivity: setContent()
+    MainActivity->>CompassApp: CompassApp()
+    CompassApp->>CompassScreen: CompassScreen(repository)
+    CompassScreen->>CompassRepository: remember { CompassRepository() }
+    
+    CompassScreen->>CompassScreen: DisposableEffect { repository.startAll() }
+    CompassScreen->>CompassRepository: startAll()
+    
+    par Location Tracking
+        CompassRepository->>CompassRepository: startLocationTracking()
+        CompassRepository->>Geolocator: track()
+        CompassRepository->>Geolocator: locationUpdates.subscribe()
+        Geolocator-->>CompassRepository: Location updates
+        CompassRepository->>Geocoder: reverseGeocode(location)
+        Geocoder-->>CompassRepository: Place name
+        CompassRepository->>CompassScreen: Update location StateFlow
+    and Heading Tracking
+        CompassRepository->>CompassRepository: startHeadingUpdates()
+        CompassRepository->>PlatformHeadingProvider: PlatformHeadingProvider { callback }
+        CompassRepository->>PlatformHeadingProvider: start()
+        
+        alt Android
+            PlatformHeadingProvider->>SensorManager: registerListener()
+            SensorManager-->>PlatformHeadingProvider: SensorEvent
+            PlatformHeadingProvider->>PlatformHeadingProvider: calculate heading
+        else iOS
+            PlatformHeadingProvider->>CLLocationManager: startUpdatingHeading()
+            CLLocationManager-->>PlatformHeadingProvider: CLHeading
+            PlatformHeadingProvider->>PlatformHeadingProvider: calculate heading
+        end
+        
+        PlatformHeadingProvider-->>CompassRepository: onHeadingUpdate(degrees, accuracy, strength, pitch, roll)
+        CompassRepository->>CompassRepository: getMagneticDeclination()
+        CompassRepository->>CompassRepository: apply declination correction
+        CompassRepository-->>CompassScreen: Update heading StateFlow
+    end
+    
+    CompassScreen-->>User: Display compass UI
