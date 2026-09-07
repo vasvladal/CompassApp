@@ -1,11 +1,12 @@
 package com.example.compassapp.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.CoreGraphics.CGRectZero
+import platform.CoreGraphics.CGRectMake
 import platform.UIKit.UIViewAutoresizingFlexibleHeight
 import platform.UIKit.UIViewAutoresizingFlexibleWidth
 import platform.WebKit.WKWebView
@@ -35,13 +36,31 @@ actual fun MapView(
         <body>
             <div id="map"></div>
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    var map = L.map('map').setView([$latitude, $longitude], 15);
+                // Wait for everything to load
+                function initMap() {
+                    var map = L.map('map', {
+                        center: [$latitude, $longitude],
+                        zoom: 15,
+                        zoomControl: true
+                    });
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap'
+                        attribution: '&copy; OpenStreetMap contributors',
+                        maxZoom: 19
                     }).addTo(map);
                     L.marker([$latitude, $longitude]).addTo(map);
-                });
+                    
+                    // Resize after a delay to ensure proper rendering
+                    setTimeout(function() {
+                        map.invalidateSize();
+                    }, 300);
+                }
+                
+                // Initialize when DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initMap);
+                } else {
+                    initMap();
+                }
             </script>
         </body>
         </html>
@@ -51,11 +70,10 @@ actual fun MapView(
         factory = {
             val config = WKWebViewConfiguration()
             config.preferences.javaScriptEnabled = true
-            val apply = WKWebView(frame = CGRectZero, configuration = config).apply {
-                autoresizingMask =
-                    UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
+
+            WKWebView(frame = CGRectMake(0.0, 0.0, 100.0, 100.0), configuration = config).apply {
+                autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
             }
-            apply
         },
         modifier = modifier,
         update = { webView ->

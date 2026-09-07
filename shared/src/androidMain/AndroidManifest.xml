@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- THIS LINE IS CRITICAL FOR THE MAP TO LOAD -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application>

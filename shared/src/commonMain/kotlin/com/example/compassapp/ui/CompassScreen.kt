@@ -216,11 +216,18 @@ private fun CompassScreen(repository: CompassRepository) {
                         Text(text = "📍 Map View", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Button(onClick = { showMap = false }) { Text("Close") }
                     }
-                    MapView(
-                        latitude = location!!.coordinates.latitude,
-                        longitude = location!!.coordinates.longitude,
-                        modifier = Modifier.fillMaxWidth().weight(1f)
-                    )
+
+                    // Add a loading indicator while map loads
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                        MapView(
+                            latitude = location!!.coordinates.latitude,
+                            longitude = location!!.coordinates.longitude,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        // Optional: Add a loading spinner overlay
+                        // You can add a progress indicator here if needed
+                    }
+
                     CoordinatesDisplay(
                         latitude = location!!.coordinates.latitude,
                         longitude = location!!.coordinates.longitude
