@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CompassApp — Справка</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a14;
+            color: #f0edf5;
+            padding: 24px 16px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #12121f;
+            border-radius: 24px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #2a2a42;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #d0b7ff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .subtitle {
+            color: #9a8ab8;
+            font-size: 15px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a2a42;
+            padding-bottom: 16px;
+        }
+        h2 {
+            font-size: 19px;
+            font-weight: 600;
+            color: #d0b7ff;
+            margin: 28px 0 12px 0;
+        }
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #bfaae6;
+            margin: 20px 0 8px 0;
+        }
+        p {
+            color: #cfc8df;
+            margin-bottom: 12px;
+        }
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+        li {
+            color: #cfc8df;
+            margin-bottom: 6px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0 20px 0;
+        }
+        .feature-card {
+            background: #1a1a2e;
+            border-radius: 14px;
+            padding: 16px 18px;
+            border-left: 4px solid #d0b7ff;
+        }
+        .feature-card .icon {
+            font-size: 22px;
+            margin-right: 8px;
+        }
+        .feature-card .title {
+            font-weight: 600;
+            color: #f0edf5;
+            font-size: 15px;
+        }
+        .feature-card .desc {
+            color: #a89fc0;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+        .badge {
+            display: inline-block;
+            background: #d0b7ff22;
+            color: #d0b7ff;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #d0b7ff33;
+            margin-right: 6px;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 12px 0;
+        }
+        .tech-tag {
+            background: #1f1f3a;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #b5a8d4;
+            border: 1px solid #33335a;
+        }
+        .code-block {
+            background: #0d0d1a;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #c8c0e0;
+            border: 1px solid #2a2a48;
+            overflow-x: auto;
+            margin: 12px 0 16px 0;
+        }
+        .code-block .comment {
+            color: #6a6a8a;
+        }
+        .code-block .keyword {
+            color: #d0b7ff;
+        }
+        .code-block .string {
+            color: #b5d6a8;
+        }
+        .section-divider {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #2a2a42, transparent);
+            margin: 28px 0;
+        }
+        .footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #2a2a42;
+            font-size: 13px;
+            color: #7a7298;
+            text-align: center;
+        }
+        .footer a {
+            color: #b5a8d4;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: #d0b7ff;
+            text-decoration: underline;
+        }
+        @media (max-width: 540px) {
+            .container { padding: 20px 16px; }
+            h1 { font-size: 22px; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>
+            <span>🧭</span> CompassApp
+        </h1>
+        <div class="subtitle">
+            Истинный азимут · GPS-координаты · OpenStreetMap · Сделано на Kotlin Multiplatform
+        </div>
+
+        <p>
+            <strong>CompassApp</strong> — это кроссплатформенный компас и навигационный инструмент,
+            созданный на <strong>Kotlin Multiplatform</strong> и <strong>Compose Multiplatform</strong>.
+            Приложение работает на <strong>Android</strong> и <strong>iOS</strong> из единой кодовой базы,
+            показывая истинный азимут (с поправкой на магнитное склонение), текущие GPS-координаты
+            и интерактивную карту на основе бесплатных тайлов OpenStreetMap.
+        </p>
+
+        <hr class="section-divider" />
+
+        <h2>✨ Возможности</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div><span class="icon">🧭</span><span class="title">Истинный азимут</span></div>
+                <div class="desc">Показывает направление в градусах и сторонах света (С, СВ, В, …). Автоматически корректируется с учётом магнитного склонения по вашим GPS-координатам.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📍</span><span class="title">GPS-местоположение</span></div>
+                <div class="desc">Показывает текущие широту и долготу в десятичном формате и в градусах, минутах, секундах. Доступны высота, точность и скорость.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">🗺️</span><span class="title">Интерактивная карта</span></div>
+                <div class="desc">Карта OpenStreetMap с маркером вашего местоположения. Масштабируйте и перемещайтесь — без API-ключей.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📐</span><span class="title">Уровень и наклон</span></div>
+                <div class="desc">Визуальный пузырьковый уровень отображает наклон и крен устройства, помогая держать телефон горизонтально для точных показаний.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">🔄</span><span class="title">Калибровка компаса</span></div>
+                <div class="desc">Экранная инструкция по калибровке: вращайте устройство восьмёркой, чтобы повысить точность показаний.</div>
+            </div>
+            <div class="feature-card">
+                <div><span class="icon">📊</span><span class="title">Напряжённость поля</span></div>
+                <div class="desc">Отображает напряжённость магнитного поля в микротеслах (мкТл). Полезно для обнаружения помех.</div>
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🧭 Как это работает</h2>
+
+        <h3>Азимут и магнитное склонение</h3>
+        <p>
+            Магнитометр устройства выдаёт <strong>магнитный азимут</strong> (относительно магнитного севера).
+            Чтобы показать <strong>истинный азимут</strong> (относительно географического севера), приложение применяет
+            поправку — <strong>магнитное склонение</strong>.
+        </p>
+        <ul>
+            <li><strong>Android</strong> использует API <code>GeomagneticField</code> для расчёта склонения по координатам GPS.</li>
+            <li><strong>iOS</strong> использует <code>CLHeading.trueHeading</code> напрямую, когда службы геолокации активны.</li>
+        </ul>
+        <p>
+            Формула расчёта:
+        </p>
+        <div class="code-block">
+            <span class="comment">// Истинный азимут = Магнитный азимут + Склонение</span><br />
+            <span class="keyword">val</span> trueDegrees = (magneticDegrees + declination + 360f) % 360f
+        </div>
+
+        <h3>Отслеживание местоположения</h3>
+        <p>
+            Для геолокации используется библиотека <strong>dev.jordond.compass</strong>, которая предоставляет:
+        </p>
+        <ul>
+            <li>Непрерывные обновления местоположения через поток <code>locationUpdates</code></li>
+            <li>Обратное геокодирование для отображения <strong>названия места</strong> (город/населённый пункт)</li>
+            <li>Информацию о высоте, точности и скорости</li>
+        </ul>
+
+        <h3>Отрисовка карты</h3>
+        <p>
+            Карты отображаются с помощью <strong>Leaflet</strong> внутри WebView с несколькими резервными провайдерами тайлов:
+        </p>
+        <ul>
+            <li><strong>OpenStreetMap</strong> (основной)</li>
+            <li><strong>OpenTopoMap</strong> (топографический, резервный)</li>
+            <li><strong>HOT</strong> (Humanitarian OpenStreetMap, резервный)</li>
+        </ul>
+        <p>
+            Такой подход не требует API-ключей и автоматически переключается при сбое провайдера.
+        </p>
+
+        <hr class="section-divider" />
+
+        <h2>🛠️ Технологический стек</h2>
+
+        <div class="tech-stack">
+            <span class="tech-tag">Kotlin Multiplatform</span>
+            <span class="tech-tag">Compose Multiplatform</span>
+            <span class="tech-tag">Kotlin Coroutines</span>
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">OpenStreetMap</span>
+            <span class="tech-tag">AndroidX Startup</span>
+            <span class="tech-tag">CLLocationManager (iOS)</span>
+            <span class="tech-tag">SensorManager (Android)</span>
+        </div>
+
+        <p>
+            Приложение построено как проект Kotlin Multiplatform с тремя основными модулями:
+        </p>
+        <ul>
+            <li><strong>shared</strong> — общая бизнес-логика (компас, геолокация, UI-компоненты).</li>
+            <li><strong>app</strong> — обёртка для Android-приложения.</li>
+            <li><strong>iosApp</strong> — обёртка для iOS-приложения (SwiftUI + ComposeUIViewController).</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <h2>📱 Советы по использованию</h2>
+
+        <ul>
+            <li><strong>Дождитесь GPS-фиксации:</strong> Подождите, пока появится название места. Компас работает точнее при наличии GPS для корректировки склонения.</li>
+            <li><strong>Держите горизонтально:</strong> Для наилучших результатов держите устройство ровно. Пузырьковый уровень помогает контролировать положение.</li>
+            <li><strong>Калибровка:</strong> Если азимут кажется неточным, нажмите <em>"Калибровка компаса"</em> и совершите восьмёрку устройством.</li>
+            <li><strong>Карта:</strong> Нажмите <em>"Показать карту"</em> в панели сведений о местоположении, чтобы увидеть своё положение на OpenStreetMap.</li>
+            <li><strong>Разрешения:</strong> Приложению требуются разрешения на геолокацию (GPS) и доступ в интернет (для карт).</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <h2>🔐 Разрешения</h2>
+
+        <p>Приложение запрашивает следующие разрешения:</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px 0;">
+            <span class="badge">📍 ACCESS_FINE_LOCATION</span>
+            <span class="badge">📍 ACCESS_COARSE_LOCATION</span>
+            <span class="badge">🌐 INTERNET</span>
+            <span class="badge">📶 ACCESS_NETWORK_STATE</span>
+        </div>
+
+        <p style="margin-top:8px;font-size:14px;color:#a89fc0;">
+            На iOS используется аналогичное разрешение <code>NSLocationWhenInUseUsageDescription</code>.
+            Все разрешения необходимы для работы компаса и карты.
+        </p>
+
+        <hr class="section-divider" />
+
+        <h2>📁 Структура проекта</h2>
+
+        <div class="code-block" style="font-size:12px;line-height:1.8;">
+            <span class="comment">// Основные модули</span><br />
+            app/                         <span class="comment">// Android-приложение</span><br />
+            iosApp/                      <span class="comment">// iOS-приложение (SwiftUI)</span><br />
+            shared/                      <span class="comment">// Общий код Kotlin Multiplatform</span><br />
+            &nbsp;&nbsp;├── commonMain/    <span class="comment">// Платформонезависимая логика</span><br />
+            &nbsp;&nbsp;│&nbsp;&nbsp;├── compass/   <span class="comment">// Азимут, склонение, репозиторий</span><br />
+            &nbsp;&nbsp;│&nbsp;&nbsp;└── ui/        <span class="comment">// Compose-интерфейсы</span><br />
+            &nbsp;&nbsp;├── androidMain/   <span class="comment">// Android-специфичные реализации</span><br />
+            &nbsp;&nbsp;└── iosMain/       <span class="comment">// iOS-специфичные реализации</span>
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>🙏 Благодарности</h2>
+
+        <ul>
+            <li><a href="https://kotlinlang.org/" target="_blank">Kotlin</a> и <a href="https://www.jetbrains.com/compose-multiplatform/" target="_blank">Compose Multiplatform</a> от JetBrains</li>
+            <li><a href="https://github.com/jordond/compass" target="_blank">Библиотека Compass</a> от Jordan Demuth (геолокация, геокодирование)</li>
+            <li><a href="https://leafletjs.com/" target="_blank">Leaflet</a> для интерактивных карт</li>
+            <li><a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> и <a href="https://opentopomap.org/" target="_blank">OpenTopoMap</a> за бесплатные тайлы карт</li>
+        </ul>
+
+        <hr class="section-divider" />
+
+        <div class="footer">
+            <p>
+                CompassApp — Сделано с ❤️ на Kotlin Multiplatform &bull; 2026
+            </p>
+            <p style="margin-top:4px;font-size:12px;">
+                📧 <a href="mailto:example@compassapp.dev">example@compassapp.dev</a> &bull;
+                🐦 <a href="#">@compassapp</a> &bull;
+                📂 <a href="#">GitHub</a>
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>

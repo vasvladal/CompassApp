@@ -24,10 +24,14 @@ kotlin {
                 implementation(libs.compass.geocoder.mobile)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
+
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.ui)
+
+                // Required for Compose Multiplatform Resources (Res class)
+                implementation(compose.components.resources)
             }
         }
         val androidMain by getting {
@@ -51,4 +55,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+}
+
+// Correct DSL syntax for Compose Multiplatform 1.6+ resource configuration
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.example.compassapp.shared.resources"
+    generateResClass = always
 }

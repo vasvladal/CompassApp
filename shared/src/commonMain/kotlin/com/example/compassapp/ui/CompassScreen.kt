@@ -52,6 +52,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.abs
 
+import com.example.compassapp.settings.AppSettings          // ← ADDED
+import com.example.compassapp.settings.stringsFor
+
 private val Black = Color(0xFF000000)
 private val White = Color(0xFFF4F1FA)
 private val Purple = Color(0xFFD0B7FF)
@@ -91,12 +94,16 @@ private fun CompassScreen(repository: CompassRepository) {
     val pitch by repository.pitch.collectAsState()
     val roll by repository.roll.collectAsState()
 
+    val language by AppSettings.language.collectAsState()   // ← ADDED
+    val s = stringsFor(language)                            // ← ADDED
+
     var showLocationDetails by remember { mutableStateOf(false) }
     var showCalibration by remember { mutableStateOf(false) }
     var calibrationProgress by remember { mutableStateOf(0f) }
     var lastCalibrationHeading by remember { mutableStateOf<Float?>(null) }
     var totalRotation by remember { mutableStateOf(0f) }
     var showMap by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }  // ← ADDED
 
     val rawHeading = heading?.degrees ?: 0f
 
@@ -120,12 +127,10 @@ private fun CompassScreen(repository: CompassRepository) {
     Box(modifier = Modifier.fillMaxSize().background(Black)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(Modifier.weight(0.05f))
-
-            Box(modifier = Modifier.height(32.dp).width(168.dp).clip(RoundedCornerShape(24.dp)).background(Purple), contentAlignment = Alignment.Center) {
-                Text(text = "TRUE DIRECTION", color = PurpleText, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Box(modifier = Modifier.height(32.dp).width(200.dp).clip(RoundedCornerShape(24.dp)).background(Purple), contentAlignment = Alignment.Center) {
+                Text(text = s.trueDirection, color = PurpleText, fontSize = 14.sp, fontWeight = FontWeight.Medium)   // ← CHANGED
             }
             Spacer(Modifier.height(12.dp))
-
             Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(bottom = 4.dp)) {
                 Text(text = rawHeading.toDouble().roundTo(0).toInt().toString(), color = White, fontSize = 42.sp, fontWeight = FontWeight.Normal)
                 Text("°", modifier = Modifier.padding(bottom = 4.dp, start = 2.dp), color = White, fontSize = 24.sp)
@@ -133,47 +138,35 @@ private fun CompassScreen(repository: CompassRepository) {
                 Text(HeadingData.fromDegrees(rawHeading).cardinalDirection, modifier = Modifier.padding(bottom = 4.dp), color = White, fontSize = 28.sp, fontWeight = FontWeight.Normal)
             }
             Spacer(Modifier.height(8.dp))
-
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.clickable { showLocationDetails = !showLocationDetails }.padding(4.dp)) {
-                Text(text = placeName ?: "Locating…", color = White, fontSize = 16.sp, fontWeight = FontWeight.Normal)
+                Text(text = placeName ?: s.locating, color = White, fontSize = 16.sp, fontWeight = FontWeight.Normal)   // ← CHANGED
                 Spacer(Modifier.width(6.dp))
                 Text(text = "📍", fontSize = 14.sp)
             }
-
             if (showLocationDetails && location != null) {
                 val lat = location!!.coordinates.latitude; val lon = location!!.coordinates.longitude
                 val (latDeg, latMin, latSec) = decimalToDMS(lat); val (lonDeg, lonMin, lonSec) = decimalToDMS(lon)
                 val latDir = if (lat >= 0) "N" else "S"; val lonDir = if (lon >= 0) "E" else "W"
-
-                // FIX: Use extractDouble() to safely handle wrapper objects like Altitude
-                val altitude = location!!.mslAltitude.extractDouble()
-                val accuracy = location!!.accuracy.extractDouble()
-                val speed = location!!.speed.extractDouble()
-
+                val altitude = location!!.mslAltitude; val accuracy = location!!.accuracy; val speed = location!!.speed
                 Column(modifier = Modifier.padding(vertical = 8.dp).background(DarkGray.copy(alpha = 0.3f)).padding(12.dp).clip(RoundedCornerShape(8.dp)), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "📍 Location Details", color = Purple, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "📍 ${s.locationDetails}", color = Purple, fontSize = 14.sp, fontWeight = FontWeight.Bold)   // ← CHANGED
                     Spacer(Modifier.height(4.dp))
-                    Text(text = "Latitude: ${formatDMS(latDeg, latMin, latSec)} $latDir", color = White, fontSize = 13.sp)
-                    Text(text = "         ${abs(lat)}° (decimal)", color = LightGray, fontSize = 11.sp)
+                    Text(text = "${s.latitude}: ${formatDMS(latDeg, latMin, latSec)} $latDir", color = White, fontSize = 13.sp)   // ← CHANGED
+                    Text(text = "         ${abs(lat)}° (${s.decimal})", color = LightGray, fontSize = 11.sp)   // ← CHANGED
                     Spacer(Modifier.height(2.dp))
-                    Text(text = "Longitude: ${formatDMS(lonDeg, lonMin, lonSec)} $lonDir", color = White, fontSize = 13.sp)
-                    Text(text = "          ${abs(lon)}° (decimal)", color = LightGray, fontSize = 11.sp)
+                    Text(text = "${s.longitude}: ${formatDMS(lonDeg, lonMin, lonSec)} $lonDir", color = White, fontSize = 13.sp)   // ← CHANGED
+                    Text(text = "          ${abs(lon)}° (${s.decimal})", color = LightGray, fontSize = 11.sp)   // ← CHANGED
                     Spacer(Modifier.height(4.dp))
-
-                    // FIX: Removed "(... as Double)" since extractDouble() already returns Double?
-                    if (altitude != null) Text(text = "Altitude: ${altitude.roundTo(1)} m", color = LightGray, fontSize = 12.sp)
-                    if (accuracy != null) Text(text = "Accuracy: ±${accuracy.roundTo(1)} m", color = LightGray, fontSize = 12.sp)
-                    if (speed != null) Text(text = "Speed: ${(speed * 3.6).roundTo(1)} km/h", color = LightGray, fontSize = 12.sp)
-
-                    Button(onClick = { repository.refreshLocation() }, modifier = Modifier.padding(top = 4.dp)) { Text("Refresh Location", fontSize = 12.sp) }
-                    Button(onClick = { showMap = true }, modifier = Modifier.padding(top = 4.dp)) { Text("Show Map", fontSize = 12.sp) }
+                    if (altitude != null) Text(text = "${s.altitude}: ${altitude.extractDouble()?.roundTo(1)} m", color = LightGray, fontSize = 12.sp)   // ← CHANGED
+                    if (accuracy != null) Text(text = "${s.accuracy}: ±${accuracy.extractDouble()?.roundTo(1)} m", color = LightGray, fontSize = 12.sp)   // ← CHANGED
+                    if (speed != null) Text(text = "${s.speed}: ${(speed.extractDouble()?.let { it * 3.6 } ?: 0.0).roundTo(1)} km/h", color = LightGray, fontSize = 12.sp)   // ← CHANGED
+                    Button(onClick = { repository.refreshLocation() }, modifier = Modifier.padding(top = 4.dp)) { Text(s.refreshLocation, fontSize = 12.sp) }   // ← CHANGED
+                    Button(onClick = { showMap = true }, modifier = Modifier.padding(top = 4.dp)) { Text(s.showMap, fontSize = 12.sp) }   // ← CHANGED
                 }
             }
-
             if (headingError != null) Text(headingError ?: "", color = Color(0xFFFF5A60), fontSize = 10.sp)
             if (locationError != null) Text(locationError ?: "", color = Color(0xFFFF5A60), fontSize = 10.sp)
             Spacer(Modifier.height(6.dp))
-
             Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFF383838)))
             Box(modifier = Modifier.height(18.dp).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 Canvas(Modifier.size(14.dp)) {
@@ -182,23 +175,35 @@ private fun CompassScreen(repository: CompassRepository) {
                 }
             }
             Spacer(Modifier.height(6.dp))
-
             Box(modifier = Modifier.fillMaxWidth().weight(0.5f), contentAlignment = Alignment.Center) {
                 CircularCompass(heading = heading, pitch = pitch, roll = roll, modifier = Modifier.fillMaxSize())
             }
-
             Spacer(Modifier.height(6.dp))
-            Text(text = "STRENGTH ${heading?.magneticStrengthMicroTesla?.let { "${it.toDouble().roundTo(0).toInt()} μT" } ?: "—"}", color = White, fontSize = 13.sp, modifier = Modifier.padding(bottom = 6.dp))
-            Button(onClick = { showCalibration = true }, modifier = Modifier.padding(bottom = 8.dp)) { Text("Calibrate Compass", fontSize = 12.sp) }
+            Text(text = "${s.strength} ${heading?.magneticStrengthMicroTesla?.let { "${it.toDouble().roundTo(0).toInt()} μT" } ?: "—"}", color = White, fontSize = 13.sp, modifier = Modifier.padding(bottom = 6.dp))   // ← CHANGED
+            Button(onClick = { showCalibration = true }, modifier = Modifier.padding(bottom = 8.dp)) { Text(s.calibrateCompass, fontSize = 12.sp) }   // ← CHANGED
             Spacer(Modifier.weight(0.05f))
+        }
+
+        // ← ADDED: Settings gear button (top-right)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 18.dp, end = 16.dp)
+                .size(40.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkGray.copy(alpha = 0.5f))
+                .clickable { showSettings = true },
+            contentAlignment = Alignment.Center
+        ) {
+            Text("⚙️", fontSize = 20.sp)
         }
 
         if (showCalibration) {
             Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)).clickable { }) {
                 Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Calibrate Compass", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(s.calibrateCompass, color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)   // ← CHANGED
                     Spacer(Modifier.height(16.dp))
-                    Text("Rotate your device in a figure-8 motion", color = White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
+                    Text(s.rotateFigure8, color = White, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))   // ← CHANGED
                     Spacer(Modifier.height(24.dp))
                     Box(modifier = Modifier.width(200.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(DarkGray)) {
                         Box(modifier = Modifier.fillMaxWidth(calibrationProgress).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Purple))
@@ -206,7 +211,7 @@ private fun CompassScreen(repository: CompassRepository) {
                     Spacer(Modifier.height(16.dp))
                     Text("${(calibrationProgress * 100).toInt()}%", color = White, fontSize = 14.sp)
                     Spacer(Modifier.height(32.dp))
-                    Button(onClick = { showCalibration = false }) { Text("Cancel") }
+                    Button(onClick = { showCalibration = false }) { Text(s.cancel) }   // ← CHANGED
                 }
             }
         }
@@ -220,27 +225,27 @@ private fun CompassScreen(repository: CompassRepository) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "📍 Map View", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        Button(onClick = { showMap = false }) { Text("Close") }
+                        Text(text = "📍 ${s.mapView}", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)   // ← CHANGED
+                        Button(onClick = { showMap = false }) { Text(s.close) }   // ← CHANGED
                     }
-
-                    // Add a loading indicator while map loads
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         MapView(
                             latitude = location!!.coordinates.latitude,
                             longitude = location!!.coordinates.longitude,
                             modifier = Modifier.fillMaxSize()
                         )
-                        // Optional: Add a loading spinner overlay
-                        // You can add a progress indicator here if needed
                     }
-
                     CoordinatesDisplay(
                         latitude = location!!.coordinates.latitude,
                         longitude = location!!.coordinates.longitude
                     )
                 }
             }
+        }
+
+        // ← ADDED: Settings overlay on top of everything
+        if (showSettings) {
+            SettingsOverlay(onClose = { showSettings = false })
         }
     }
 }
