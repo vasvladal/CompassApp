@@ -8,9 +8,6 @@ android-gradle = "9.4.0"
 androidx-core = "1.19.0"
 androidx-activity-compose = "1.13.0"
 androidx-startup = "1.2.0"
-# ADD THESE TWO:
-maps-compose = "8.6.0"
-play-services-maps = "20.0.0"
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -34,9 +31,6 @@ compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "c
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
-# ADD THESE TWO:
-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps-compose" }
-play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play-services-maps" }
 
 [bundles]
 compose-all = ["compose-runtime", "compose-foundation", "compose-material3", "compose-ui"]

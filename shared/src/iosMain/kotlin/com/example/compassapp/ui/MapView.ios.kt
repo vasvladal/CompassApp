@@ -1,83 +1,106 @@
 package com.example.compassapp.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGRectMake
-import platform.UIKit.UIViewAutoresizingFlexibleHeight
-import platform.UIKit.UIViewAutoresizingFlexibleWidth
+import platform.Foundation.NSURL
+import platform.Foundation.NSURLRequest
 import platform.WebKit.WKWebView
 import platform.WebKit.WKWebViewConfiguration
-import platform.WebKit.javaScriptEnabled
+import platform.WebKit.WKNavigationDelegateProtocol
+import platform.WebKit.WKNavigation
+import platform.darwin.NSObject
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun MapView(
     latitude: Double,
     longitude: Double,
     modifier: Modifier
 ) {
-    val htmlContent = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-            <style>
-                html, body { margin: 0; padding: 0; height: 100%; width: 100%; background: #e5e5e5; }
-                #map { height: 100%; width: 100%; }
-            </style>
-        </head>
-        <body>
-            <div id="map"></div>
-            <script>
-                // Wait for everything to load
-                function initMap() {
-                    var map = L.map('map', {
-                        center: [$latitude, $longitude],
-                        zoom: 15,
-                        zoomControl: true
-                    });
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors',
-                        maxZoom: 19
-                    }).addTo(map);
-                    L.marker([$latitude, $longitude]).addTo(map);
-                    
-                    // Resize after a delay to ensure proper rendering
-                    setTimeout(function() {
-                        map.invalidateSize();
-                    }, 300);
-                }
-                
-                // Initialize when DOM is ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initMap);
-                } else {
-                    initMap();
-                }
-            </script>
-        </body>
-        </html>
-    """.trimIndent()
+    val url = remember(latitude, longitude) { buildOsmEmbedUrl(latitude, longitude) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    UIKitView(
-        factory = {
-            val config = WKWebViewConfiguration()
-            config.preferences.javaScriptEnabled = true
+    // Delegate to inject CSS once the map DOM is ready
+    val delegate = remember {
+        MapNavigationDelegate { isLoading = false }
+    }
 
-            WKWebView(frame = CGRectMake(0.0, 0.0, 100.0, 100.0), configuration = config).apply {
-                autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
+    Box(modifier = modifier) {
+        UIKitView(
+            modifier = Modifier.matchParentSize(),
+            factory = {
+                val config = WKWebViewConfiguration()
+                val webView = WKWebView(
+                    frame = CGRectMake(0.0, 0.0, 0.0, 0.0),
+                    configuration = config
+                )
+                webView.setOpaque(false)
+                webView.navigationDelegate = delegate
+
+                val nsUrl = NSURL(string = url)
+                val request = NSURLRequest(uRL = nsUrl)
+                webView.loadRequest(request)
+                webView
+            },
+            update = { webView ->
+                val currentUrl = webView.URL?.absoluteString
+                if (currentUrl != url) {
+                    isLoading = true
+                    val nsUrl = NSURL(string = url)
+                    val request = NSURLRequest(uRL = nsUrl)
+                    webView.loadRequest(request)
+                }
             }
-        },
-        modifier = modifier,
-        update = { webView ->
-            webView.loadHTMLString(htmlContent, null)
+        )
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.matchParentSize().background(Color(0xFF1A1A2E)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = Color(0xFFD0B7FF))
+                    Text(
+                        text = "Loading map…",
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+            }
         }
-    )
+    }
+}
+
+private class MapNavigationDelegate(
+    private val onFinished: () -> Unit
+) : NSObject(), WKNavigationDelegateProtocol {
+    override fun webView(webView: WKWebView, didFinishNavigation: WKNavigation?) {
+        onFinished()
+
+        // Inject CSS to recolor the default blue marker to glowing pink/red
+        val jsSource = """
+            var style = document.createElement('style');
+            style.innerHTML = '.leaflet-marker-icon { filter: hue-rotate(140deg) saturate(5) brightness(1.2) drop-shadow(0 0 5px white) drop-shadow(0 0 10px #FF1744) !important; z-index: 9999 !important; } .leaflet-marker-shadow { display: none !important; }';
+            document.head.appendChild(style);
+        """.trimIndent()
+        webView.evaluateJavaScript(jsSource, null)
+    }
 }

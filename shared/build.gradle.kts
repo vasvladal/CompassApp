@@ -34,9 +34,6 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.startup.runtime)
-                // ADD THESE TWO LINES:
-                implementation(libs.maps.compose)
-                implementation(libs.play.services.maps)
             }
         }
         val iosMain by creating { dependsOn(commonMain) }
